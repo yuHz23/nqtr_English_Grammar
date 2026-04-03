@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Master | Luyện Ngữ Pháp Tiếng Anh</title>
+    <meta name="description" content="Ứng dụng luyện tập ngữ pháp tiếng Anh với chấm điểm và giải thích chi tiết bằng tiếng Việt">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="bg-animation"><div class="floating-shape shape-1"></div><div class="floating-shape shape-2"></div><div class="floating-shape shape-3"></div><div class="floating-shape shape-4"></div><div class="floating-shape shape-5"></div></div>
+
+    <!-- Achievement Toast -->
+    <div class="achievement-toast hidden" id="achievementToast">
+        <div class="achievement-toast-icon" id="achievementToastIcon">🏅</div>
+        <div class="achievement-toast-content">
+            <div class="achievement-toast-title" id="achievementToastTitle">Thành tích mới!</div>
+            <div class="achievement-toast-desc" id="achievementToastDesc"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-content">
+            <div class="logo" onclick="backToTopics()" style="cursor:pointer">
+                <div class="logo-icon">📚</div>
+                <div class="logo-text">
+                    <h1>Grammar Master</h1>
+                    <p>Luyện Ngữ Pháp Tiếng Anh</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-stats" id="headerStats">
+                    <div class="stat-badge"><span class="stat-icon">🔥</span><span id="streakCount">0</span></div>
+                    <div class="stat-badge"><span class="stat-icon">🏆</span><span id="totalScore">0</span>/<span id="totalQuestions">0</span></div>
+                    <div class="stat-badge"><span class="stat-icon">📊</span><span id="accuracy">0</span>%</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-icon-only" id="soundToggle" onclick="toggleSound()" title="Âm thanh">🔊</button>
+                    <button class="btn btn-icon-only" id="statsBtn" onclick="showStatsPage()" title="Thống kê">📈</button>
+                    <button class="btn btn-icon-only" id="achieveBtn" onclick="showAchievementsPage()" title="Thành tích">🏅</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- TOPIC SELECTION -->
+        <section class="topic-selection" id="topicSelection">
+            <div class="section-header">
+                <h2 class="section-title">Chọn Chủ Đề Ngữ Pháp</h2>
+                <p class="section-subtitle">7 chủ đề, 140+ câu hỏi đa dạng với giải thích chi tiết bằng tiếng Việt</p>
+            </div>
+            <!-- Difficulty Filter -->
+            <div class="filter-bar" id="filterBar">
+                <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Tất cả</button>
+                <button class="filter-btn" data-filter="1" onclick="setFilter('1')">🟢 Dễ</button>
+                <button class="filter-btn" data-filter="2" onclick="setFilter('2')">🟡 Trung bình</button>
+                <button class="filter-btn" data-filter="3" onclick="setFilter('3')">🔴 Khó</button>
+            </div>
+            <div class="topic-grid" id="topicGrid"></div>
+            <div class="action-buttons-row">
+                <button class="btn btn-primary btn-xl" onclick="startPracticeAll()"><span class="btn-icon">🚀</span> Luyện Tất Cả</button>
+                <button class="btn btn-secondary btn-xl" id="reviewWrongBtn" onclick="startReviewWrong()"><span class="btn-icon">🔁</span> Ôn Câu Sai (<span id="wrongCount">0</span>)</button>
+            </div>
+        </section>
+
+        <!-- QUIZ SECTION -->
+        <section class="quiz-section hidden" id="quizSection">
+            <div class="quiz-header">
+                <button class="btn btn-ghost" onclick="backToTopics()"><span>←</span> Quay Lại</button>
+                <div class="quiz-topic-title" id="quizTopicTitle"></div>
+                <div class="quiz-progress"><span id="currentQ">1</span>/<span id="totalQ">10</span></div>
+            </div>
+            <div class="theory-panel" id="theoryPanel">
+                <div class="theory-toggle" onclick="toggleTheory()"><span class="theory-icon">📖</span><span>Xem Lý Thuyết</span><span class="toggle-arrow" id="toggleArrow">▼</span></div>
+                <div class="theory-content hidden" id="theoryContent"></div>
+            </div>
+            <div class="progress-bar-container"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+            <!-- Streak indicator -->
+            <div class="streak-indicator hidden" id="streakIndicator"><span id="streakText">🔥 2 câu đúng liên tiếp!</span></div>
+            <!-- Question Card -->
+            <div class="question-card" id="questionCard">
+                <div class="question-header-row">
+                    <div class="question-number" id="questionNumber">Câu 1</div>
+                    <div class="difficulty-badge" id="difficultyBadge">🟢 Dễ</div>
+                </div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+                <div class="feedback-container hidden" id="feedbackContainer">
+                    <div class="feedback-icon" id="feedbackIcon"></div>
+                    <div class="feedback-text" id="feedbackText"></div>
+                    <div class="explanation" id="explanation"></div>
+                </div>
+                <div class="question-actions"><button class="btn btn-primary hidden" id="nextBtn" onclick="nextQuestion()">Câu Tiếp Theo →</button></div>
+            </div>
+        </section>
+
+        <!-- RESULTS SECTION -->
+        <section class="results-section hidden" id="resultsSection">
+            <div class="results-card">
+                <div class="results-header">
+                    <div class="results-emoji" id="resultsEmoji">🎉</div>
+                    <h2 class="results-title" id="resultsTitle">Hoàn Thành!</h2>
+                    <p class="results-subtitle" id="resultsSubtitle"></p>
+                </div>
+                <div class="results-stats">
+                    <div class="result-stat"><div class="result-stat-value" id="resCorrect">0</div><div class="result-stat-label">Đúng ✅</div></div>
+                    <div class="result-stat"><div class="result-stat-value" id="resWrong">0</div><div class="result-stat-label">Sai ❌</div></div>
+                    <div class="result-stat"><div class="result-stat-value" id="resScore">0%</div><div class="result-stat-label">Điểm 📊</div></div>
+                </div>
+                <div class="score-ring-container">
+                    <svg class="score-ring" viewBox="0 0 200 200">
+                        <defs><linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6366f1"/><stop offset="50%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+                        <circle class="score-ring-bg" cx="100" cy="100" r="85"/>
+                        <circle class="score-ring-fill" id="scoreRingFill" cx="100" cy="100" r="85"/>
+                    </svg>
+                    <div class="score-ring-text" id="scoreRingText">0%</div>
+                </div>
+                <div class="review-section">
+                    <h3 class="review-title">📝 Xem Lại Các Câu Trả Lời</h3>
+                    <div class="review-list" id="reviewList"></div>
+                </div>
+                <div class="results-actions">
+                    <button class="btn btn-primary" onclick="retryQuiz()">🔄 Làm Lại</button>
+                    <button class="btn btn-secondary" onclick="backToTopics()">📚 Chọn Chủ Đề Khác</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATS PAGE -->
+        <section class="stats-page hidden" id="statsPage">
+            <div class="page-header"><button class="btn btn-ghost" onclick="backToTopics()">← Quay Lại</button><h2>📈 Thống Kê Tiến Bộ</h2></div>
+            <div class="stats-overview" id="statsOverview"></div>
+            <div class="stats-chart-container">
+                <h3>Lịch sử điểm số</h3>
+                <canvas id="progressChart" width="700" height="300"></canvas>
+            </div>
+            <div class="stats-by-topic" id="statsByTopic"></div>
+        </section>
+
+        <!-- ACHIEVEMENTS PAGE -->
+        <section class="achievements-page hidden" id="achievementsPage">
+            <div class="page-header"><button class="btn btn-ghost" onclick="backToTopics()">← Quay Lại</button><h2>🏅 Thành Tích</h2></div>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+        </section>
+    </main>
+
+    <footer class="footer"><p>Grammar Master v2.0 © 2026 — Luyện tập ngữ pháp tiếng Anh mỗi ngày 💪</p></footer>
+    <script src="sounds.js"></script>
+    <script src="grammar-data.js"></script>
+    <script src="app.js"></script>
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}</script>
+</body>
+</html>
