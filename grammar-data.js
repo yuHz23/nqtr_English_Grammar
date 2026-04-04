@@ -20,6 +20,10 @@ const GRAMMAR_TOPICS = [
 <tr><td>Past Simple</td><td>Past Perfect</td></tr>
 <tr><td>Present Perfect</td><td>Past Perfect</td></tr>
 <tr><td>will/can/may</td><td>would/could/might</td></tr></table>
+<h4>⚠️ Quy tắc lùi thì đặc biệt (KHÔNG lùi thì):</h4>
+<ul><li>Động từ tường thuật ở <strong>Hiện tại</strong> (says, tells, asks).</li>
+<li>Nói về 1 <strong>sự thật hiển nhiên</strong> chân lý.</li>
+<li>Câu điều kiện loại 2, loại 3.</li></ul>
 <h4>Đổi trạng từ:</h4>
 <ul><li>today → that day</li><li>tomorrow → the next day/the following day</li>
 <li>yesterday → the day before/the previous day</li><li>now → then</li><li>here → there</li></ul>`,
@@ -43,7 +47,10 @@ const GRAMMAR_TOPICS = [
       { type:"reorder", difficulty:3, question:'Sắp xếp thành câu tường thuật đúng:', words:["He","asked","me","where","I","had","bought","the","book"], answer:"He asked me where I had bought the book", explanation:'🔑 Wh-Q: S + asked + O + Wh-word + S + had + V3.' },
       { type:"multiple-choice", difficulty:2, question:'"Do you like coding?" she asked him. → She asked him ______.', options:["if he liked coding","if he likes coding","does he like coding","if did he like coding"], correct:0, explanation:'🔑 Yes/No: asked + if + lùi thì: <span class="correct-answer">if he liked coding</span>.' },
       { type:"multiple-choice", difficulty:1, question:'"I am happy," she said. → She said she ______ happy.', options:["is","was","were","has been"], correct:1, explanation:'🔑 am → <span class="correct-answer">was</span>: Present Simple → Past Simple.' },
-      { type:"multiple-choice", difficulty:3, question:'"I have been waiting for 2 hours," he complained. → He complained that he ______ for 2 hours.', options:["has been waiting","had been waiting","was waiting","waited"], correct:1, explanation:'🔑 Present Perfect Continuous → Past Perfect Continuous: <span class="correct-answer">had been waiting</span>.' }
+      { type:"multiple-choice", difficulty:3, question:'"I have been waiting for 2 hours," he complained. → He complained that he ______ for 2 hours.', options:["has been waiting","had been waiting","was waiting","waited"], correct:1, explanation:'🔑 Present Perfect Continuous → Past Perfect Continuous: <span class="correct-answer">had been waiting</span>.' },
+      { type:"multiple-choice", difficulty:3, question:'The teacher said, "Water boils at 100 degrees Celsius." → The teacher said that water ______ at 100 degrees Celsius.', options:["boiled","boils","had boiled","will boil"], correct:1, explanation:'🔑 Sự thật hiển nhiên → <span class="correct-answer">KHÔNG lùi thì: boils</span>.' },
+      { type:"fill", difficulty:2, question:'He says, "I am busy today." → He says that he ______ busy today.', answer:["is"], explanation:'🔑 "says" ở HTĐ → <span class="correct-answer">KHÔNG lùi thì: is</span> (đổi am → is theo he).' },
+      { type:"multiple-choice", difficulty:3, question:'They told me, "If we had more money, we would buy it." → They told me that if they ______ more money, they would buy it.', options:["have","had","had had","would have"], correct:1, explanation:'🔑 Câu điều kiện loại 2 → <span class="correct-answer">KHÔNG lùi thì: had</span>.' }
     ]
   },
   {
@@ -98,7 +105,14 @@ const GRAMMAR_TOPICS = [
 <div class="example">If I <strong>were</strong> you, I <strong>would buy</strong> it.</div>
 <h4>3. Loại 3: Quá khứ (Không có thật/Tiếc nuối)</h4>
 <p>If + Quá khứ hoàn thành (had + V3), Would/Could + have + V3</p>
-<div class="example">If I <strong>had known</strong>, I <strong>would have gone</strong>.</div>`,
+<div class="example">If I <strong>had known</strong>, I <strong>would have gone</strong>.</div>
+<h4>🌟 4. Câu Điều Kiện Hỗn Hợp (Mixed Conditionals):</h4>
+<p>Nguyên nhân QK (ĐK3) dẫn đến Kết quả HT (ĐK2):</p>
+<div class="example">If I <strong>had studied</strong> (QK), I <strong>would pass</strong> now (HT).</div>
+<h4>⚠️ Đảo ngữ (Inversion):</h4>
+<ul><li><strong>ĐK1:</strong> Should + S + V-inf, ... (Should it rain, ...)</li>
+<li><strong>ĐK2:</strong> Were + S + (to-V/Noun/Adj), ... (Were I you, ...)</li>
+<li><strong>ĐK3:</strong> Had + S + V3/ed, ... (Had I known, ...)</li></ul>`,
     questions: [
       { type:"multiple-choice", difficulty:1, question:"If I had known about green energy, I ______ it.", options:["will support","would support","would have supported","had supported"], correct:2, explanation:'🔑 ĐK3: If had V3 → <span class="correct-answer">would have supported</span>.' },
       { type:"multiple-choice", difficulty:2, question:"Jason would have come if we ______ (tell) him.", options:["told","had told","have told","would tell"], correct:1, explanation:'🔑 Main clause "would have come" → If clause: <span class="correct-answer">had told</span>.' },
@@ -139,7 +153,12 @@ const GRAMMAR_TOPICS = [
       { type:"multiple-choice", difficulty:2, question:"She ______ completely different if she cut her hair.", options:["looks","will look","would look","would have looked"], correct:2, explanation:'🔑 If + cut (QKĐ vì ngôi 3 số ít nếu HTĐ phải là cuts) → ĐK loại 2: <span class="correct-answer">would look</span>.' },
       { type:"multiple-choice", difficulty:1, question:"If it doesn't rain, we ______ tennis.", options:["play","would play","will play","played"], correct:2, explanation:'🔑 ĐK loại 1: <span class="correct-answer">will play</span>.' },
       { type:"multiple-choice", difficulty:3, question:"______ I you, I would study AI immediately.", options:["Was","Am","Were","If"], correct:2, explanation:'🔑 Đảo ngữ ĐK loại 2: <span class="correct-answer">Were</span> I you = If I were you.' },
-      { type:"multiple-choice", difficulty:2, question:"If she ______ fluent English, she could get that job. (But she isn't fluent)", options:["speaks","spoke","will speak","had spoken"], correct:1, explanation:'🔑 Sự thật là cô ấy không lưu loát → giả định ngược lại ở hiện tại = ĐK loại 2: <span class="correct-answer">spoke</span>.' }
+      { type:"multiple-choice", difficulty:2, question:"If she ______ fluent English, she could get that job. (But she isn't fluent)", options:["speaks","spoke","will speak","had spoken"], correct:1, explanation:'🔑 Sự thật là cô ấy không lưu loát → giả định ngược lại ở hiện tại = ĐK loại 2: <span class="correct-answer">spoke</span>.' },
+      { type:"multiple-choice", difficulty:3, question:"If I had eaten breakfast, I ______ hungry right now.", options:["won't be","wouldn't have been","wouldn't be","am not"], correct:2, explanation:"🔑 Mixed Conditional (ĐK3 + ĐK2): QK không ăn, hiện tại bị đói → <span class=\"correct-answer\">wouldn't be</span>." },
+      { type:"multiple-choice", difficulty:3, question:"______ he change his mind, please tell him to call me.", options:["If","Had","Were","Should"], correct:3, explanation:'🔑 Đảo ngữ ĐK1: <span class="correct-answer">Should</span> he change (change về nguyên mẫu).' },
+      { type:"multiple-choice", difficulty:3, question:"______ the truth, I wouldn't be in this trouble now.", options:["Had I known","If I know","Did I know","Were I to know"], correct:0, explanation:'🔑 Mixed Conditional + Đảo ngữ ĐK3: <span class="correct-answer">Had I known</span> (Nếu trong QK tôi biết) thì now (hiện tại) không gặp rắc rối.' },
+      { type:"fill", difficulty:3, question:"If she had taken the medicine yesterday, she ______ (feel) better now.", answer:["would feel"], explanation:'🔑 Mixed Conditional: QK (had taken) → Hiện tại (now) → ĐK2: <span class="correct-answer">would feel</span>.' },
+      { type:"reorder", difficulty:3, question:"Sắp xếp câu đảo ngữ ĐK3:", words:["Had","I","seen","him","I","would","have","told","you"], answer:"Had I seen him I would have told you", explanation:'🔑 Đảo ngữ ĐK3: Had + S + V3, S + would + have + V3.' }
     ]
   },
   {
@@ -190,12 +209,14 @@ const GRAMMAR_TOPICS = [
     emoji: "🛠️",
     difficulty: 4,
     description: "Cấu trúc nhờ vả/sai khiến với HAVE và GET.",
-    theory: `<h4>📌 Causatives</h4>
+    theory: `<h4>📌 Causatives & Similar Verbs</h4>
 <h4>Chủ động (Active):</h4><ul>
 <li><strong>have + O(người) + V-inf</strong>: She had him fix the car.</li>
-<li><strong>get + O(người) + to-V</strong>: She got him to fix the car.</li></ul>
+<li><strong>get + O(người) + to-V</strong>: She got him to fix the car.</li>
+<li><strong>make / let / help + O(người) + V-inf</strong>: Bắt / Cho phép / Giúp ai làm gì.</li></ul>
 <h4>Bị động (Passive):</h4><ul>
-<li><strong>have/get + O(vật) + V3/ed</strong>: She had her car fixed.</li></ul>`,
+<li><strong>have/get + O(vật) + V3/ed</strong>: She had her car fixed.</li>
+<li><strong>(be) made + to-V</strong>: Bị bắt làm gì (He was made to work).</li></ul>`,
     questions: [
       { type:"multiple-choice", difficulty:1, question:"Sarah got the company ______ the damaged street light.", options:["to fix","fix","fixing","fixed"], correct:0, explanation:'🔑 get + O(người) + to-V: <span class="correct-answer">to fix</span>.' },
       { type:"multiple-choice", difficulty:1, question:"The officials had the planner ______ a new bus route.", options:["design","to design","designing","designed"], correct:0, explanation:'🔑 have + O(người) + V-inf: <span class="correct-answer">design</span>.' },
@@ -216,7 +237,11 @@ const GRAMMAR_TOPICS = [
       { type:"multiple-choice", difficulty:2, question:"I ______ my eyes tested every year.", options:["have","make","do","take"], correct:0, explanation:'🔑 <span class="correct-answer">have</span> + eyes(vật) + tested(V3) = nhờ khám mắt.' },
       { type:"multiple-choice", difficulty:3, question:"He got his assistant ______ the report by Friday.", options:["finish","to finish","finished","finishing"], correct:1, explanation:'🔑 got + assistant(người) + to-V: <span class="correct-answer">to finish</span>.' },
       { type:"multiple-choice", difficulty:1, question:"Passive causative: have/get + O(vật) + ______", options:["V-inf","to-V","V3/ed (past participle)","V-ing"], correct:2, explanation:'🔑 Passive: have/get + O(vật) + <span class="correct-answer">V3/ed</span>.' },
-      { type:"multiple-choice", difficulty:2, question:"The residents had the plumber ______ the water pipes.", options:["clean","to clean","cleaned","cleaning"], correct:0, explanation:'🔑 Active have: had + plumber(người) + V-inf: <span class="correct-answer">clean</span>.' }
+      { type:"multiple-choice", difficulty:2, question:"The residents had the plumber ______ the water pipes.", options:["clean","to clean","cleaned","cleaning"], correct:0, explanation:'🔑 Active have: had + plumber(người) + V-inf: <span class="correct-answer">clean</span>.' },
+      { type:"multiple-choice", difficulty:2, question:"My parents never let me ______ out late at night.", options:["to stay","stay","staying","stayed"], correct:1, explanation:'🔑 let + O + V-inf (cho phép ai làm gì): <span class="correct-answer">stay</span>.' },
+      { type:"multiple-choice", difficulty:3, question:"The boss made the employees ______ overtime yesterday.", options:["work","to work","worked","working"], correct:0, explanation:'🔑 make + O + V-inf (bắt ai làm gì): <span class="correct-answer">work</span>.' },
+      { type:"multiple-choice", difficulty:3, question:"The employees were made ______ overtime yesterday.", options:["work","to work","worked","working"], correct:1, explanation:'🔑 Bị động của make: be made + to-V → <span class="correct-answer">to work</span>.' },
+      { type:"fill", difficulty:2, question:"A good dictionary helps you ______ (understand) new words.", answer:["understand","to understand"], explanation:'🔑 help + O + V-inf / to-V đều được. Phổ biến nhất: <span class="correct-answer">understand</span>.' }
     ]
   },
   {

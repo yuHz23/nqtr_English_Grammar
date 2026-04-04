@@ -156,7 +156,9 @@ function renderQuestion() {
     db.className = 'difficulty-badge diff-' + q.difficulty;
 
     const topicLabel = q.topicTitle ? ` <span class="q-topic-label">[${q.topicTitle}]</span>` : '';
-    document.getElementById("questionText").innerHTML = q.question + topicLabel;
+    const qRawText = q.question.replace(/<[^>]*>/g, '').replace(/_+/g, 'blank').replace(/'/g, "\\'");
+    const speakerHtml = `<span onclick="speakText('${qRawText}', event)" style="cursor:pointer; margin-left: 8px; filter: grayscale(0.5); font-size: 1.1rem;" title="Nghe câu hỏi">🔊</span>`;
+    document.getElementById("questionText").innerHTML = q.question + topicLabel + speakerHtml;
 
     const container = document.getElementById("optionsContainer");
 
@@ -176,25 +178,37 @@ function renderQuestion() {
 
 function renderMC(q, container) {
     const letters = ['A','B','C','D'];
-    container.innerHTML = q.options.map((opt, i) => `
+    container.innerHTML = q.options.map((opt, i) => {
+        const cleanOpt = opt.replace(/<[^>]*>/g, '').replace(/'/g, "\\'");
+        return `
         <button class="option-btn" id="opt-${i}" onclick="selectMC(${i})">
             <span class="option-letter">${letters[i]}</span><span class="option-text">${opt}</span>
-        </button>`).join('');
+            <span onclick="speakText('${cleanOpt}', event)" style="margin-left:auto; font-size:1.1rem; filter: grayscale(0.2); transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Phát âm đáp án">🔊</span>
+        </button>`;
+    }).join('');
 }
 
 function renderFill(q, container) {
+    const hintText = q.answer[0].replace(/'/g, "\\'");
     container.innerHTML = `<div class="fill-input-container">
         <input type="text" class="fill-input" id="fillInput" placeholder="Nhập đáp án..." autocomplete="off" onkeydown="if(event.key==='Enter')submitFill()">
-        <button class="btn btn-primary fill-submit-btn" onclick="submitFill()">Kiểm tra ✓</button></div>`;
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+            <button class="btn btn-primary fill-submit-btn" onclick="submitFill()">Kiểm tra ✓</button>
+            <span class="speak-btn" onclick="speakText('${hintText}', event)" title="Nghe đáp án">🔊</span>
+        </div></div>`;
     setTimeout(() => document.getElementById('fillInput')?.focus(), 200);
 }
 
 function renderReorder(q, container) {
     const shuffled = shuffleArray([...q.words]);
+    const answerText = q.answer.replace(/'/g, "\\'");
     container.innerHTML = `<div class="reorder-container">
-        <div class="reorder-bank" id="reorderBank">${shuffled.map((w,i) => `<span class="reorder-word" draggable="true" data-word="${w}" onclick="toggleReorderWord(this)">${w}</span>`).join('')}</div>
+        <div class="reorder-bank" id="reorderBank">${shuffled.map((w,i) => `<span class="reorder-word" draggable="true" data-word="${w}" onclick="toggleReorderWord(this)"><span class="speak-btn speak-btn-mini" onclick="speakText('${w.replace(/'/g, "\\'")}', event)" title="Nghe">🔊</span> ${w}</span>`).join('')}</div>
         <div class="reorder-answer" id="reorderAnswer" onclick="this.lastElementChild && this.lastElementChild.click()"></div>
-        <button class="btn btn-primary fill-submit-btn" onclick="submitReorder()">Kiểm tra ✓</button></div>`;
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-primary fill-submit-btn" onclick="submitReorder()">Kiểm tra ✓</button>
+            <span class="speak-btn" onclick="speakText('${answerText}', event)" title="Nghe đáp án đúng">🔊</span>
+        </div></div>`;
 }
 
 function renderMatching(q, container) {
@@ -202,7 +216,7 @@ function renderMatching(q, container) {
     const rightItems = shuffleArray(q.pairs.map(p => p[1]));
     container.innerHTML = `<div class="matching-container">
         <div class="matching-columns">
-            <div class="matching-col">${leftItems.map((l,i) => `<div class="match-item match-left" data-idx="${i}" onclick="selectMatchLeft(this)">${l}</div>`).join('')}</div>
+            <div class="matching-col">${leftItems.map((l,i) => `<div class="match-item match-left" data-idx="${i}" onclick="selectMatchLeft(this)"><span class="speak-btn speak-btn-mini" onclick="speakText('${l.replace(/'/g, "\\'")}', event)" title="Nghe">🔊</span> ${l}</div>`).join('')}</div>
             <div class="matching-col">${rightItems.map((r,i) => `<div class="match-item match-right" data-val="${r}" onclick="selectMatchRight(this)">${r}</div>`).join('')}</div>
         </div>
         <div class="match-lines" id="matchLines"></div>
@@ -306,17 +320,26 @@ function processAnswer(isCorrect, userAnswer, correctAnswer, q) {
         if (state.currentStreak > stored.bestStreak) stored.bestStreak = state.currentStreak;
         if (state.isReviewMode) stored._reviewCorrect = (stored._reviewCorrect || 0) + 1;
         if (q.difficulty === 3) stored._hardCorrect = (stored._hardCorrect || 0) + 1;
-        // Remove from wrong if review
+        // Remove from wrong if correct 2 times in review
         if (state.isReviewMode) {
-            stored.wrongQuestions = stored.wrongQuestions.filter(wq => wq.question !== q.question);
+            const wq = stored.wrongQuestions.find(i => i.question === q.question);
+            if (wq) {
+                wq.repCount = (wq.repCount || 0) + 1;
+                if (wq.repCount >= 2) {
+                    stored.wrongQuestions = stored.wrongQuestions.filter(i => i.question !== q.question);
+                }
+            }
         }
     } else {
         state.currentStreak = 0;
         Sound.play('wrong');
         document.getElementById('streakIndicator').classList.add('hidden');
-        // Add to wrong questions (avoid duplicates)
-        if (!stored.wrongQuestions.some(wq => wq.question === q.question)) {
-            stored.wrongQuestions.push({...q});
+        // Add to wrong questions or reset counter
+        const existingWq = stored.wrongQuestions.find(wq => wq.question === q.question);
+        if (existingWq) {
+            existingWq.repCount = 0; // Reset
+        } else {
+            stored.wrongQuestions.push({...q, repCount: 0});
         }
     }
     stored.totalAnswered++;
@@ -591,15 +614,70 @@ function updateHeaderStats() {
 }
 
 function updateWrongCount() {
-    document.getElementById("wrongCount").textContent = stored.wrongQuestions ? stored.wrongQuestions.length : 0;
+    const wq = stored.wrongQuestions || [];
+    const total = wq.length;
+    const almostDone = wq.filter(q => (q.repCount || 0) >= 1).length;
+    const erCard = document.getElementById("erCard");
+    const erCount = document.getElementById("erCount");
+    const erReady = document.getElementById("erReady");
+
+    if (total === 0) {
+        erCard.classList.add("er-empty");
+        erCount.textContent = "Trống — Bạn giỏi lắm!";
+        erReady.textContent = "";
+    } else {
+        erCard.classList.remove("er-empty");
+        erCount.textContent = total + " câu đang kẹt";
+        erReady.textContent = almostDone > 0 ? almostDone + " câu sắp ra viện" : "";
+    }
 }
 
 function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
+    // Tách riêng những câu ưu tiên từ Sách Bright 12
+    let brightArr = [];
+    let normArr = [];
+    arr.forEach(q => {
+        if (q.question && q.question.includes('[Bright 12]')) {
+            brightArr.push(q);
+        } else {
+            normArr.push(q);
+        }
+    });
+
+    // Hàm shuffle nội bộ
+    const doShuffle = (a) => {
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    };
+
+    // Nối mảng, đảm bảo Bright nằm lên ưu tiên đầu (đã xáo trộn nội bộ)
+    return doShuffle(brightArr).concat(doShuffle(normArr));
+}
+
+let _preferredVoice = null;
+function _loadVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    _preferredVoice = voices.find(v => v.lang === 'en-US' && v.localService) ||
+                      voices.find(v => v.lang === 'en-US') ||
+                      voices.find(v => v.lang.startsWith('en')) || null;
+}
+if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = _loadVoice;
+    _loadVoice();
+}
+
+function speakText(text, event) {
+    if (event) event.stopPropagation();
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel(); // Hủy queue cũ, tránh chồng chất
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (_preferredVoice) utterance.voice = _preferredVoice;
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
 }
 
 function spawnConfetti() {
@@ -616,3 +694,98 @@ function spawnConfetti() {
         }, i * 80);
     }
 }
+
+// -----------------------------------------------------------------------------
+// AUTH & CLOUD SYNC SYSTEM
+// -----------------------------------------------------------------------------
+let authMode = 'login';
+let API_URL = "https://script.google.com/macros/s/AKfycbzAtzVLsu3PfGSVYXRd__J1g0jOwqsJldH3NSYPmqkJF0A2BumuoMB2Hdd-KgyKixjV/exec"; // Kết nối Backend Google Sheet
+
+function openAuth() {
+    document.getElementById('authModal').classList.remove('hidden');
+}
+function closeAuth() {
+    document.getElementById('authModal').classList.add('hidden');
+}
+function toggleAuthMode() {
+    authMode = authMode === 'login' ? 'register' : 'login';
+    document.getElementById('authTitle').textContent = authMode === 'login' ? "Đăng nhập tài khoản" : "Tạo tài khoản mới";
+    document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? "Đăng Nhập Ngay" : "Tạo Tài Khoản";
+    document.querySelector('.auth-switch-link').textContent = authMode === 'login' ? "Tạo tài khoản mới" : "Đăng nhập tại đây";
+    document.getElementById('authError').classList.add('hidden');
+}
+
+async function submitAuth() {
+    const user = document.getElementById('authUsername').value.trim();
+    const pass = document.getElementById('authPassword').value.trim();
+    const err = document.getElementById('authError');
+    if(!user || !pass) { err.textContent = "Vui lòng nhập tên và mật khẩu"; err.classList.remove('hidden'); return; }
+    if(API_URL === "TODO_URL") { err.textContent = "Chưa kết nối Cloud (Thiếu API URL từ Google Script)"; err.classList.remove('hidden'); return; }
+
+    const btn = document.getElementById('authSubmitBtn');
+    btn.textContent = "Đang xử lý..."; btn.disabled = true;
+
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: authMode, username: user, password: pass })
+        });
+        const data = await res.json();
+        
+        if(data.success) {
+            localStorage.setItem('gm_currentUser', user);
+            localStorage.setItem('gm_currentPass', pass);
+            if(authMode === 'login' && data.data && data.data !== "{}") {
+                // Restore Cloud Data
+                const p = JSON.parse(data.data);
+                if(p.history) {
+                    localStorage.setItem('grammar_master_v2', JSON.stringify(p));
+                    stored = p; updateStatsUI();
+                }
+            }
+            closeAuth();
+            showSyncToast('Cloud Auth', data.message);
+        } else {
+            err.textContent = data.message; err.classList.remove('hidden');
+        }
+    } catch(e) {
+        err.textContent = "Lỗi kết nối. Vui lòng thử lại."; err.classList.remove('hidden');
+    }
+    
+    btn.textContent = authMode === 'login' ? "Đăng Nhập Ngay" : "Tạo Tài Khoản"; btn.disabled = false;
+}
+
+async function syncToCloud() {
+    const user = localStorage.getItem('gm_currentUser');
+    if(!user || API_URL === "TODO_URL") return;
+    try {
+        showSyncToast('Đang đồng bộ', 'Pushing data to cloud...');
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'sync', username: user, data: JSON.stringify(stored) })
+        });
+        const data = await res.json();
+        if(data.success) { showSyncToast('Thành công', 'Đã lưu trên Cloud ☁️'); }
+    } catch(e) { console.log("Sync error:", e); }
+}
+
+function showSyncToast(title, desc) {
+    const toast = document.getElementById('syncToast');
+    if(!toast) return;
+    document.getElementById('syncToastTitle').textContent = title;
+    document.getElementById('syncToastDesc').textContent = desc;
+    toast.classList.remove('hidden'); setTimeout(() => toast.classList.add('toast-show'), 10);
+    setTimeout(() => { toast.classList.remove('toast-show'); setTimeout(() => toast.classList.add('hidden'), 500); }, 3000);
+}
+
+// Store original complete function
+const origConfetti = spawnConfetti;
+spawnConfetti = function() {
+    origConfetti();
+    syncToCloud();
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    const u = localStorage.getItem('gm_currentUser');
+    if(!u) { setTimeout(openAuth, 1500); } // Nhắc login sau 1.5s
+});

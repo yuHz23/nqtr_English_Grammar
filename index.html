@@ -14,6 +14,32 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Auth Modal -->
+    <div class="auth-modal hidden" id="authModal">
+        <div class="auth-backdrop" onclick="closeAuth()"></div>
+        <div class="auth-card">
+            <h2 id="authTitle" style="color: #fff; margin-bottom: 0.5rem; text-align: center;">Đăng nhập tài khoản</h2>
+            <p id="authSubtitle" style="color: #9ca3b8; text-align: center; margin-bottom: 1.5rem; font-size: 0.95rem;">Điểu này giúp đồng bộ dữ liệu của bạn trên đám mây.</p>
+            <div class="auth-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="text" id="authUsername" placeholder="Tên đăng nhập (Username)" autocomplete="off" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(30,41,59,0.8); color: #fff; font-family: 'Inter';">
+                <input type="password" id="authPassword" placeholder="Mật khẩu" autocomplete="off" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(30,41,59,0.8); color: #fff; font-family: 'Inter';">
+                <div class="auth-error hidden" id="authError" style="color: #ef4444; font-size: 0.85rem; text-align: center; padding: 0.5rem; background: rgba(239,68,68,0.1); border-radius: 0.5rem;">Lỗi</div>
+                <button class="btn btn-primary btn-xl" id="authSubmitBtn" onclick="submitAuth()">Đăng Nhập Ngay</button>
+                <div class="auth-switch" style="text-align: center; font-size: 0.9rem; color: #9ca3b8; margin-top: 0.5rem;">Chưa có tài khoản? <span class="auth-switch-link" onclick="toggleAuthMode()" style="color: #818cf8; cursor: pointer; text-decoration: underline;">Tạo tài khoản mới</span></div>
+                <button class="btn btn-ghost" onclick="closeAuth()" style="margin-top: 0.5rem;">Đóng (Chơi ẩn danh)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Toast -->
+    <div class="achievement-toast hidden" id="syncToast" style="bottom: 80px;">
+        <div class="achievement-toast-icon">☁️</div>
+        <div class="achievement-toast-content">
+            <div class="achievement-toast-title" id="syncToastTitle">Đồng bộ đám mây</div>
+            <div class="achievement-toast-desc" id="syncToastDesc">Đang cập nhật...</div>
+        </div>
+    </div>
+
     <div class="bg-animation"><div class="floating-shape shape-1"></div><div class="floating-shape shape-2"></div><div class="floating-shape shape-3"></div><div class="floating-shape shape-4"></div><div class="floating-shape shape-5"></div></div>
 
     <!-- Achievement Toast -->
@@ -45,6 +71,9 @@
                     <button class="btn btn-icon-only" id="soundToggle" onclick="toggleSound()" title="Âm thanh">🔊</button>
                     <button class="btn btn-icon-only" id="statsBtn" onclick="showStatsPage()" title="Thống kê">📈</button>
                     <button class="btn btn-icon-only" id="achieveBtn" onclick="showAchievementsPage()" title="Thành tích">🏅</button>
+                    <a href="dashboard.html" class="btn btn-icon-only" title="Dashboard" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">📊</a>
+                    <a href="exams.html" class="btn btn-icon-only" title="Phòng luyện đề THPTQG" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">🏛️</a>
+                    <button class="btn btn-icon-only" id="authBtn" onclick="openAuth()" title="Tài khoản thiết lập (Đồng bộ)">👤</button>
                 </div>
             </div>
         </div>
@@ -65,9 +94,22 @@
                 <button class="filter-btn" data-filter="3" onclick="setFilter('3')">🔴 Khó</button>
             </div>
             <div class="topic-grid" id="topicGrid"></div>
+            <!-- Phòng Cấp Cứu Card -->
+            <div class="er-card" id="erCard" onclick="startReviewWrong()">
+                <div class="er-card-icon">🚑</div>
+                <div class="er-card-content">
+                    <h3 class="er-card-title">Phòng Cấp Cứu</h3>
+                    <p class="er-card-desc">Những câu bạn hay sai nhất — phải đúng <strong>2 lần liên tiếp</strong> mới được "ra viện"</p>
+                    <div class="er-card-stats">
+                        <span class="er-stat-badge" id="erCount">0 câu đang kẹt</span>
+                        <span class="er-stat-badge er-stat-ready" id="erReady"></span>
+                    </div>
+                </div>
+                <div class="er-card-arrow">→</div>
+            </div>
+
             <div class="action-buttons-row">
                 <button class="btn btn-primary btn-xl" onclick="startPracticeAll()"><span class="btn-icon">🚀</span> Luyện Tất Cả</button>
-                <button class="btn btn-secondary btn-xl" id="reviewWrongBtn" onclick="startReviewWrong()"><span class="btn-icon">🔁</span> Ôn Câu Sai (<span id="wrongCount">0</span>)</button>
             </div>
         </section>
 
@@ -155,6 +197,7 @@
     <footer class="footer"><p>Grammar Master v2.0 © 2026 — Luyện tập ngữ pháp tiếng Anh mỗi ngày 💪</p></footer>
     <script src="sounds.js"></script>
     <script src="grammar-data.js"></script>
+    <script src="generated_bank.js"></script>
     <script src="app.js"></script>
     <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}</script>
 </body>

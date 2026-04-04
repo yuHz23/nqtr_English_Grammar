@@ -86,6 +86,22 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-primary);c
 .start-badge{display:inline-flex;font-size:0.75rem;font-weight:600;color:var(--accent-primary-light);opacity:0;transform:translateX(-8px);transition:all var(--transition-base);float:right;}
 .topic-card:hover .start-badge{opacity:1;transform:translateX(0);}
 
+/* ER CARD (Phòng Cấp Cứu) */
+.er-card{display:flex;align-items:center;gap:16px;padding:20px 24px;margin-bottom:20px;background:linear-gradient(145deg,rgba(239,68,68,0.1),rgba(236,72,153,0.06));background-color:var(--bg-card);border:2px solid rgba(239,68,68,0.25);border-radius:var(--radius-xl);cursor:pointer;transition:all var(--transition-smooth);position:relative;overflow:hidden;}
+.er-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient-danger);opacity:0.7;}
+.er-card:hover{transform:translateY(-4px);border-color:rgba(239,68,68,0.5);box-shadow:var(--shadow-glow-red);}
+.er-card-icon{font-size:2.8rem;flex-shrink:0;animation:bounce-slow 3s ease-in-out infinite;}
+.er-card-content{flex:1;min-width:0;}
+.er-card-title{font-size:1.2rem;font-weight:800;color:var(--accent-red-light);margin-bottom:4px;}
+.er-card-desc{font-size:0.82rem;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;}
+.er-card-desc strong{color:var(--accent-amber);}
+.er-card-stats{display:flex;gap:8px;flex-wrap:wrap;}
+.er-stat-badge{font-size:0.78rem;font-weight:700;padding:4px 12px;border-radius:var(--radius-full);background:rgba(239,68,68,0.12);color:var(--accent-red-light);border:1px solid rgba(239,68,68,0.2);}
+.er-stat-ready{background:rgba(16,185,129,0.12);color:var(--accent-green-light);border-color:rgba(16,185,129,0.2);}
+.er-card-arrow{font-size:1.4rem;font-weight:800;color:var(--accent-red-light);opacity:0;transform:translateX(-8px);transition:all var(--transition-base);flex-shrink:0;}
+.er-card:hover .er-card-arrow{opacity:1;transform:translateX(0);}
+.er-card.er-empty{opacity:0.5;pointer-events:none;border-style:dashed;}
+
 /* ACTION BUTTONS */
 .action-buttons-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:var(--radius-md);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all var(--transition-base);outline:none;}
@@ -181,6 +197,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-primary);c
 .match-left{margin-bottom:8px;}
 .match-right{margin-bottom:8px;}
 .match-line-text{font-size:0.82rem;color:var(--accent-green-light);padding:3px 0;font-weight:500;}
+
+/* Speak Button */
+.speak-btn{cursor:pointer;font-size:1.1rem;filter:grayscale(0.3);transition:transform 0.1s,filter 0.2s;user-select:none;}
+.speak-btn:hover{transform:scale(1.25);filter:grayscale(0);}
+.speak-btn:active{transform:scale(0.95);}
+.speak-btn-mini{font-size:0.85rem;margin-right:2px;}
 
 /* Feedback */
 .feedback-container{padding:18px;border-radius:var(--radius-md);margin-top:14px;animation:fadeIn 0.3s ease;}
@@ -288,4 +310,45 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-primary);c
     .header-stats{display:none;}
     .achievements-grid{grid-template-columns:1fr;}
     .matching-columns{grid-template-columns:1fr;}
+}
+
+/* Auth Modal Styles */
+.auth-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+.auth-modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.auth-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(5px);
+}
+.auth-card {
+    position: relative;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    width: 90%;
+    max-width: 400px;
+    z-index: 1001;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    transform: translateY(0);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.auth-modal.hidden .auth-card {
+    transform: translateY(20px);
+}
+.auth-input {
+    width: 100%;
 }

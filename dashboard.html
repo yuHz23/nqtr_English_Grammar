@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Grammar Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .dash-title {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #818cf8;
+            margin-bottom: 0.5rem;
+        }
+        .metric-label {
+            color: #9ca3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .panels-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) {
+            .panels-grid { grid-template-columns: 1fr; }
+        }
+        .dash-panel {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .panel-title {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history-table th, .history-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .history-table th {
+            color: #9ca3b8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        .history-table tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .score-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .score-high { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .score-med { background: rgba(234, 179, 8, 0.2); color: #fde047; }
+        .score-low { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        
+        .topic-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .topic-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topic-name {
+            font-weight: 500;
+        }
+        .topic-stats {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #9ca3b8;
+        }
+        .topic-best {
+            color: #fff;
+            font-weight: bold;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="dash-header">
+            <h1 class="dash-title">📊 Học Viên Dashboard</h1>
+            <a href="index.html" class="btn btn-secondary">← Về Ứng Dụng</a>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid">
+            <!-- Metrics will be injected here -->
+        </div>
+
+        <div class="panels-grid">
+            <div class="dash-panel">
+                <h3 class="panel-title">📈 Lịch sử luyện tập gần đây</h3>
+                <div class="chart-container">
+                    <canvas id="dashChart" width="700" height="300"></canvas>
+                </div>
+                <div style="overflow-x: auto; margin-top: 1.5rem;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Chủ đề</th>
+                                <th>Đúng/Tổng</th>
+                                <th>Điểm số</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTbody">
+                            <!-- History -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dash-panel">
+                <h3 class="panel-title">🏆 Hiệu suất theo chủ đề</h3>
+                <div class="topic-list" id="topicList">
+                    <!-- Topics -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="grammar-data.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const stored = JSON.parse(localStorage.getItem('grammar_master_v2')) || {
+                totalCorrect: 0, totalAnswered: 0, bestStreak: 0, sessionsCompleted: 0,
+                history: [], topicStats: {}, wrongQuestions: []
+            };
+
+            // Metrics
+            const acc = stored.totalAnswered > 0 ? Math.round((stored.totalCorrect / stored.totalAnswered) * 100) : 0;
+            document.getElementById('metricsGrid').innerHTML = `
+                <div class="metric-card"><div class="metric-value">${stored.sessionsCompleted || 0}</div><div class="metric-label">Bài Đã Hoàn Thành</div></div>
+                <div class="metric-card"><div class="metric-value">${acc}%</div><div class="metric-label">Độ Chính Xác Giữ vững</div></div>
+                <div class="metric-card"><div class="metric-value">${stored.totalCorrect || 0}</div><div class="metric-label">Câu Trả Lời Đúng</div></div>
+                <div class="metric-card"><div class="metric-value">${stored.bestStreak || 0}</div><div class="metric-label">Streak Kỷ Lục 🔥</div></div>
+                <div class="metric-card"><div class="metric-value">${stored.wrongQuestions ? stored.wrongQuestions.length : 0}</div><div class="metric-label">Câu Sai Khắc Phục</div></div>
+            `;
+
+            // History Table
+            const hTbody = document.getElementById('historyTbody');
+            const history = stored.history || [];
+            if (history.length === 0) {
+                hTbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Chưa có dữ liệu học tập</td></tr>';
+            } else {
+                const latest = history.slice(-10).reverse();
+                hTbody.innerHTML = latest.map(h => {
+                    const date = new Date(h.date).toLocaleString('vi-VN');
+                    let topicName = "Tổng Hợp / Ôn Tập";
+                    if (h.topicId && h.topicId !== 'all' && h.topicId !== 'review') {
+                        const t = GRAMMAR_TOPICS.find(x => x.id === h.topicId);
+                        if (t) topicName = t.title;
+                    }
+                    let scoreClass = h.pct >= 80 ? 'score-high' : h.pct >= 50 ? 'score-med' : 'score-low';
+                    return `<tr>
+                        <td>${date}</td>
+                        <td>${topicName}</td>
+                        <td>${h.correct}/${h.total}</td>
+                        <td><span class="score-badge ${scoreClass}">${h.pct}%</span></td>
+                    </tr>`;
+                }).join('');
+            }
+
+            // Topics List
+            const tList = document.getElementById('topicList');
+            tList.innerHTML = GRAMMAR_TOPICS.map(t => {
+                const s = stored.topicStats[t.id];
+                if (!s) return `<div class="topic-item"><div class="topic-name">${t.emoji} ${t.title}</div><div class="topic-stats">Chưa làm</div></div>`;
+                return `<div class="topic-item">
+                    <div class="topic-name">${t.emoji} ${t.title}</div>
+                    <div class="topic-stats">
+                        Số lần: ${s.attempts} | Best: <span class="topic-best">${s.bestPct}%</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Draw Chart
+            drawChart(history);
+        });
+
+        function drawChart(history) {
+            const canvas = document.getElementById('dashChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width, H = canvas.height;
+            
+            if (history.length < 2) {
+                ctx.fillStyle = '#9ca3b8'; ctx.font = '16px Inter';
+                ctx.textAlign = 'center'; ctx.fillText('Cần ít nhất 2 bài học để tạo biểu đồ', W/2, H/2);
+                return;
+            }
+
+            const data = history.slice(-20);
+            const pad = { top: 20, right: 20, bottom: 40, left: 40 };
+            const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = pad.top + (ch / 4) * i;
+                ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+                ctx.fillStyle = '#6b7280'; ctx.font = '12px Inter'; ctx.textAlign = 'right';
+                ctx.fillText((100 - i * 25) + '%', pad.left - 8, y + 4);
+            }
+
+            const stepX = cw / (data.length - 1);
+            ctx.beginPath();
+            const gradient = ctx.createLinearGradient(pad.left, 0, W - pad.right, 0);
+            gradient.addColorStop(0, '#4ade80'); gradient.addColorStop(1, '#3b82f6');
+            ctx.strokeStyle = gradient; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+
+            data.forEach((d, i) => {
+                const x = pad.left + i * stepX;
+                const y = pad.top + ch - (d.pct / 100) * ch;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            data.forEach((d, i) => {
+                const x = pad.left + i * stepX;
+                const y = pad.top + ch - (d.pct / 100) * ch;
+                ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#3b82f6'; ctx.fill();
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+            });
+
+            ctx.fillStyle = '#9ca3b8'; ctx.font = '11px Inter'; ctx.textAlign = 'center';
+            data.forEach((d, i) => {
+                if (data.length <= 10 || i % 2 === 0) {
+                    const x = pad.left + i * stepX;
+                    const ds = new Date(d.date);
+                    ctx.fillText(ds.getDate() + '/' + (ds.getMonth()+1), x, H - pad.bottom + 20);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

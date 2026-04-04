@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Đề THPT Quốc Gia | Grammar Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .exam-hub { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 2; }
+        .exam-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        
+        .exam-room { display: none; max-width: 1400px; margin: 0 auto; padding: 1rem; position: relative; z-index: 2; height: calc(100vh - 80px); gap: 1.5rem; }
+        .exam-room.active { display: grid; grid-template-columns: 1fr 340px; }
+        @media (max-width: 900px) { .exam-room.active { grid-template-columns: 1fr; height: auto; } }
+
+        /* Left Side: Questions */
+        .exam-left { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; padding: 1.5rem; overflow-y: auto; scroll-behavior: smooth; }
+        .q-part-title { font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #a5b4fc, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 2rem 0 1rem; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+        
+        .passage-box { background: rgba(0,0,0,0.2); padding: 1.25rem; border-left: 4px solid #6366f1; border-radius: 0.5rem; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.7; color: #e2e8f0; text-align: justify; }
+        
+        .exam-question { margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 0.75rem; border: 1px solid transparent; transition: all 0.3s; }
+        .exam-question.active-q { border-color: rgba(99,102,241,0.5); box-shadow: 0 0 15px rgba(99,102,241,0.1); }
+        .eq-num { font-weight: 800; color: #818cf8; margin-right: 0.5rem; }
+        .eq-text { font-size: 1.05rem; margin-bottom: 1rem; font-weight: 500; }
+        
+        .eq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        @media (max-width: 600px) { .eq-options { grid-template-columns: 1fr; } }
+        .eq-opt { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.03); }
+        .eq-opt:hover { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); }
+        .eq-opt.selected { background: rgba(99,102,241,0.2); border-color: #6366f1; box-shadow: inset 0 0 0 1px #6366f1; }
+        .eq-opt input { display: none; }
+        
+        /* Right Side: Navigation */
+        .exam-right { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; padding: 1.5rem; display: flex; flex-direction: column; }
+        .timer-box { text-align: center; font-size: 2.5rem; font-weight: 900; color: #f87171; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid rgba(248,113,113,0.3); text-shadow: 0 0 10px rgba(248,113,113,0.5); font-family: monospace; }
+        
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; overflow-y: auto; flex: 1; margin-bottom: 1rem; padding-right: 5px; }
+        .nav-btn { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #9ca3b8; transition: all 0.2s; }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); }
+        .nav-btn.answered { background: #6366f1; border-color: #818cf8; color: #fff; box-shadow: 0 0 10px rgba(99,102,241,0.5); }
+        
+        .submit-btn { width: 100%; padding: 1rem; font-size: 1.1rem; border-radius: 0.75rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Review Mode Styling */
+        .eq-opt.correct-review { background: rgba(16,185,129,0.2) !important; border-color: #10b981 !important; }
+        .eq-opt.wrong-review { background: rgba(239,68,68,0.2) !important; border-color: #ef4444 !important; opacity: 0.6; }
+        .nav-btn.review-correct { background: #10b981; border-color: #34d399; color: white; }
+        .nav-btn.review-wrong { background: #ef4444; border-color: #f87171; color: white; }
+        .explanation-box { margin-top: 10px; padding: 10px; background: rgba(30,41,59,0.8); border-left: 3px solid #f59e0b; border-radius: 4px; font-size: 0.9rem; color: #cbd5e1; display: none; }
+        .review-mode .explanation-box { display: block; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div class="logo-text">
+                    <h1>Phòng Thi Quốc Gia</h1>
+                    <p>THPT English Mock Exams</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="index.html" class="btn btn-secondary">← Trang Chủ</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+    </div>
+
+    <!-- HUB VIEW -->
+    <div class="exam-hub" id="examHub">
+        <h2 class="section-title">Kho Đề Thi THPT Quốc Gia</h2>
+        <p class="section-subtitle" style="margin-bottom: 2rem;">Thử sức với các đề thi chuẩn năm 2021-2026 với đồng hồ đếm ngược 60 phút.</p>
+        <div class="exam-cards" id="examList">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+
+    <!-- EXAM ROOM VIEW -->
+    <div class="exam-room" id="examRoom">
+        <div class="exam-left" id="examQuestionsContainer">
+            <!-- Questions rendered here -->
+        </div>
+        <div class="exam-right">
+            <div class="timer-box" id="examTimer">60:00</div>
+            <h3 style="margin-bottom: 10px; font-size: 0.9rem; color: #9ca3b8;">Bảng Câu Hỏi (50 Câu)</h3>
+            <div class="nav-grid" id="examNavGrid">
+                <!-- Nav buttons rendered here -->
+            </div>
+            <button class="btn btn-primary submit-btn" id="examSubmitBtn" onclick="submitExam()">Nộp Bài</button>
+        </div>
+    </div>
+
+    <script src="exam-data.js"></script>
+    <script>
+        let currentExam = null;
+        let timerInt = null;
+        let timeLeft = 3600; // 60 mins
+        let userAnswers = {};
+        let isReviewMode = false;
+
+        function renderHub() {
+            const list = document.getElementById('examList');
+            list.innerHTML = EXAM_DB.map((ex, i) => `
+                <div class="topic-card" onclick="startExam(${i})">
+                    <div class="topic-card-header">
+                        <div class="topic-emoji">📝</div>
+                        <div class="topic-info">
+                            <div class="topic-unit">${ex.year}</div>
+                            <h3>${ex.title}</h3>
+                        </div>
+                    </div>
+                    <div class="topic-description">${ex.desc}</div>
+                    <div class="topic-meta">
+                        <div class="topic-question-count">⏰ ${ex.timeLimit} phút | 📋 ${ex.questions.length} câu</div>
+                        <div class="start-badge">Bắt đầu &rarr;</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startExam(idx) {
+            currentExam = EXAM_DB[idx];
+            document.getElementById('examHub').style.display = 'none';
+            document.getElementById('examRoom').classList.add('active');
+            userAnswers = {};
+            isReviewMode = false;
+            
+            // Build UI
+            buildQuestions();
+            buildNav();
+            
+            // Start Timer
+            timeLeft = currentExam.timeLimit * 60;
+            updateTimerUI();
+            clearInterval(timerInt);
+            timerInt = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+                if(timeLeft <= 0) {
+                    clearInterval(timerInt);
+                    alert("Đã hết thời gian làm bài!");
+                    submitExam();
+                }
+            }, 1000);
+            
+            // Scroll to top
+            document.getElementById('examQuestionsContainer').scrollTop = 0;
+            document.getElementById('examSubmitBtn').textContent = "Nộp Bài";
+            document.getElementById('examSubmitBtn').classList.remove('hidden');
+            document.getElementById('examRoom').classList.remove('review-mode');
+        }
+
+        function updateTimerUI() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('examTimer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if(timeLeft < 300) document.getElementById('examTimer').style.color = '#ef4444'; // Red if < 5m
+        }
+
+        function buildQuestions() {
+            const container = document.getElementById('examQuestionsContainer');
+            let html = `<h2 style="margin-bottom:1rem">${currentExam.title}</h2>`;
+            
+            let currentGroup = "";
+            let qIndex = 0;
+
+            currentExam.questions.forEach((qObj) => {
+                // Determine if we need a new section/passage
+                if (qObj.groupTitle !== currentGroup) {
+                    currentGroup = qObj.groupTitle;
+                    html += `<div class="q-part-title">${currentGroup}</div>`;
+                    if (qObj.passage) {
+                        html += `<div class="passage-box">${qObj.passage.replace(/\\n/g, '<br>')}</div>`;
+                    }
+                }
+
+                qIndex++;
+                const opts = qObj.options.map((opt, oIdx) => `
+                    <label class="eq-opt" id="opt-${qIndex}-${oIdx}">
+                        <input type="radio" name="q${qIndex}" value="${oIdx}" onchange="selectAnswer(${qIndex}, ${oIdx})">
+                        <span style="font-weight:bold; color:#818cf8; width:20px">${String.fromCharCode(65+oIdx)}.</span> ${opt}
+                    </label>
+                `).join('');
+
+                html += `
+                <div class="exam-question" id="qbox-${qIndex}">
+                    <div class="eq-text"><span class="eq-num">Câu ${qIndex}:</span>${qObj.q}</div>
+                    <div class="eq-options">${opts}</div>
+                    <div class="explanation-box" id="exp-${qIndex}"><strong>Đáp án đúng: ${String.fromCharCode(65+qObj.correct)}</strong><br>${qObj.explanation}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function buildNav() {
+            const nav = document.getElementById('examNavGrid');
+            let html = "";
+            for(let i=1; i<=currentExam.questions.length; i++) {
+                html += `<div class="nav-btn" id="nav-${i}" onclick="scrollToQ(${i})">${i}</div>`;
+            }
+            nav.innerHTML = html;
+        }
+
+        function selectAnswer(qNum, oIdx) {
+            if(isReviewMode) return;
+            userAnswers[qNum] = oIdx;
+            
+            // Update UI option selection
+            document.querySelectorAll(`input[name="q${qNum}"]`).forEach(el => {
+                el.parentElement.classList.remove('selected');
+            });
+            document.getElementById(`opt-${qNum}-${oIdx}`).classList.add('selected');
+            
+            // Update Navigator
+            document.getElementById(`nav-${qNum}`).classList.add('answered');
+        }
+
+        function scrollToQ(qNum) {
+            const box = document.getElementById(`qbox-${qNum}`);
+            box.scrollIntoView({behavior: "smooth", block: "center"});
+            // highlight logic
+            document.querySelectorAll('.exam-question').forEach(el=>el.classList.remove('active-q'));
+            box.classList.add('active-q');
+            setTimeout(()=>box.classList.remove('active-q'), 2000);
+        }
+
+        function submitExam() {
+            if(!isReviewMode) {
+                const unanswered = currentExam.questions.length - Object.keys(userAnswers).length;
+                if(unanswered > 0) {
+                    if(!confirm(`Bạn còn ${unanswered} câu chưa làm. Bạn chắc chắn muốn nộp bài?`)) return;
+                }
+            } else {
+                // Exit review mode
+                document.getElementById('examRoom').classList.remove('active');
+                document.getElementById('examHub').style.display = 'block';
+                return;
+            }
+
+            clearInterval(timerInt);
+            isReviewMode = true;
+            document.getElementById('examRoom').classList.add('review-mode');
+            
+            let score = 0;
+            currentExam.questions.forEach((qObj, index) => {
+                const qNum = index + 1;
+                const userAns = userAnswers[qNum];
+                const correctAns = qObj.correct;
+                const navBtn = document.getElementById(`nav-${qNum}`);
+                
+                if (userAns !== undefined) {
+                    const selOpt = document.getElementById(`opt-${qNum}-${userAns}`);
+                    if(userAns === correctAns) {
+                        score++;
+                        selOpt.classList.add('correct-review');
+                        navBtn.classList.add('review-correct');
+                    } else {
+                        selOpt.classList.add('wrong-review');
+                        document.getElementById(`opt-${qNum}-${correctAns}`).classList.add('correct-review');
+                        navBtn.classList.add('review-wrong');
+                    }
+                } else {
+                    document.getElementById(`opt-${qNum}-${correctAns}`).classList.add('correct-review');
+                    navBtn.classList.add('review-wrong');
+                }
+            });
+
+            const point10 = ((score / currentExam.questions.length) * 10).toFixed(2);
+            document.getElementById('examTimer').innerHTML = `<span style="font-size:1.5rem">Điểm thi:</span><br><span style="color:#10b981">${point10}</span>`;
+            document.getElementById('examSubmitBtn').textContent = "Thoát (Trở về Kho)";
+            
+            // Sync to cloud if available
+            try { if(typeof syncToCloud !== 'undefined') syncToCloud(); } catch(e){}
+            
+            alert(`Bạn đúng ${score}/${currentExam.questions.length} câu.\nĐiểm: ${point10}/10\nKiểm tra lại đáp án ở cột trái!`);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if(typeof EXAM_DB !== 'undefined') {
+                renderHub();
+            }
+        });
+    </script>
+</body>
+</html>
