@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Ma Trận Cuối Kỳ II | Grammar Master</title>
+    <meta name="description" content="Luyện tập các dạng bài trong ma trận đề kiểm tra cuối kỳ II lớp 12 Tiếng Anh">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Hub */
+        .matran-hub{max-width:1200px;margin:0 auto;padding:2rem;position:relative;z-index:2;}
+        .matrix-table{width:100%;border-collapse:collapse;margin:1.5rem 0;background:rgba(30,41,59,0.7);border-radius:1rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
+        .matrix-table th,.matrix-table td{padding:12px 16px;text-align:center;border:1px solid rgba(255,255,255,0.06);font-size:0.85rem;}
+        .matrix-table th{background:rgba(99,102,241,0.15);color:#a5b4fc;font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;}
+        .matrix-table td{color:#e2e8f0;}
+        .matrix-table tr:hover td{background:rgba(99,102,241,0.05);}
+        .type-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin:2rem 0;}
+        .type-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-xl);padding:24px;cursor:pointer;transition:all 0.4s;position:relative;overflow:hidden;}
+        .type-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;opacity:0;transition:opacity 0.3s;}
+        .type-card:hover{transform:translateY(-6px);box-shadow:0 0 30px rgba(99,102,241,0.15);border-color:rgba(99,102,241,0.35);}
+        .type-card:hover::before{opacity:1;}
+        .type-card:nth-child(1)::before{background:linear-gradient(90deg,#6366f1,#818cf8);}
+        .type-card:nth-child(2)::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+        .type-card:nth-child(3)::before{background:linear-gradient(90deg,#10b981,#34d399);}
+        .type-card:nth-child(4)::before{background:linear-gradient(90deg,#ec4899,#f472b6);}
+        .tc-emoji{font-size:2.5rem;margin-bottom:12px;}
+        .tc-title{font-size:1.1rem;font-weight:800;margin-bottom:4px;}
+        .tc-desc{font-size:0.82rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;}
+        .tc-meta{display:flex;justify-content:space-between;align-items:center;}
+        .tc-badge{font-size:0.75rem;font-weight:700;padding:4px 12px;border-radius:99px;background:rgba(99,102,241,0.1);color:#818cf8;}
+        .tc-pct{font-size:1.4rem;font-weight:900;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+        /* Practice Room */
+        .practice-room{display:none;max-width:900px;margin:0 auto;padding:1.5rem;position:relative;z-index:2;}
+        .practice-room.active{display:block;}
+        .pr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px;}
+        .pr-progress{font-size:0.85rem;font-weight:600;color:#818cf8;background:var(--bg-card);border:1px solid var(--border-color);padding:5px 14px;border-radius:99px;}
+
+        /* Passage Box */
+        .passage-box{background:rgba(0,0,0,0.25);padding:1.5rem;border-left:4px solid #6366f1;border-radius:0 0.75rem 0.75rem 0;margin-bottom:1.5rem;font-size:0.95rem;line-height:1.8;color:#e2e8f0;text-align:justify;}
+        .passage-box .blank{display:inline-block;min-width:80px;border-bottom:2px dashed #818cf8;text-align:center;color:#818cf8;font-weight:700;cursor:pointer;padding:0 4px;transition:all 0.2s;}
+        .passage-box .blank.answered{border-color:#10b981;color:#10b981;}
+        .passage-box .blank.wrong-answer{border-color:#ef4444;color:#ef4444;}
+
+        /* Question inside practice */
+        .pq-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;transition:all 0.3s;animation:slideUp 0.3s ease;}
+        .pq-card.active-card{border-color:rgba(99,102,241,0.5);box-shadow:0 0 20px rgba(99,102,241,0.1);}
+        .pq-card.correct-card{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.03);}
+        .pq-card.wrong-card{border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.03);}
+        .pq-num{font-size:0.75rem;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+        .pq-text{font-size:1rem;font-weight:500;margin-bottom:14px;line-height:1.6;}
+        .pq-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        @media(max-width:600px){.pq-options{grid-template-columns:1fr;}}
+        .pq-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:0.5rem;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.02);font-size:0.9rem;}
+        .pq-opt:hover:not(.locked){background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3);}
+        .pq-opt.selected{background:rgba(99,102,241,0.15);border-color:#6366f1;}
+        .pq-opt.correct-opt{background:rgba(16,185,129,0.15)!important;border-color:#10b981!important;}
+        .pq-opt.wrong-opt{background:rgba(239,68,68,0.12)!important;border-color:#ef4444!important;opacity:0.7;}
+        .pq-opt.locked{cursor:default;}
+        .pq-opt-letter{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-weight:700;font-size:0.8rem;flex-shrink:0;}
+        .pq-explain{margin-top:10px;padding:10px;background:rgba(30,41,59,0.7);border-left:3px solid #f59e0b;border-radius:4px;font-size:0.85rem;color:#cbd5e1;display:none;line-height:1.6;}
+        .pq-explain.show{display:block;animation:fadeIn 0.3s;}
+
+        /* Sequencing drag */
+        .seq-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--bg-card);border:2px solid var(--border-color);border-radius:var(--radius-md);margin-bottom:10px;cursor:grab;transition:all 0.2s;font-size:0.92rem;line-height:1.5;user-select:none;}
+        .seq-item:hover{border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.05);}
+        .seq-item.dragging{opacity:0.5;border-color:#818cf8;}
+        .seq-item .seq-handle{font-size:1.2rem;color:#6b7280;flex-shrink:0;}
+        .seq-item.seq-correct{border-color:#10b981;background:rgba(16,185,129,0.08);}
+        .seq-item.seq-wrong{border-color:#ef4444;background:rgba(239,68,68,0.06);}
+        .seq-num{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(99,102,241,0.1);color:#818cf8;border-radius:50%;font-weight:800;font-size:0.8rem;flex-shrink:0;}
+
+        /* Mock Exam Banner */
+        .mock-banner{background:linear-gradient(135deg,rgba(239,68,68,0.1),rgba(168,85,247,0.08));border:2px solid rgba(239,68,68,0.25);border-radius:var(--radius-xl);padding:24px;margin:2rem 0;display:flex;align-items:center;gap:20px;cursor:pointer;transition:all 0.4s;}
+        .mock-banner:hover{transform:translateY(-4px);box-shadow:0 0 30px rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.5);}
+        .mock-icon{font-size:3rem;flex-shrink:0;animation:bounce-slow 3s ease-in-out infinite;}
+        .mock-info h3{font-size:1.3rem;font-weight:800;color:#f87171;margin-bottom:4px;}
+        .mock-info p{font-size:0.88rem;color:var(--text-secondary);line-height:1.5;}
+        @keyframes bounce-slow{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+        /* Results overlay */
+        .result-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(10,14,26,0.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;}
+        .result-overlay.active{display:flex;}
+        .result-box{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-xl);padding:40px;max-width:500px;width:90%;text-align:center;animation:slideUp 0.5s ease;max-height:90vh;overflow-y:auto;}
+        .result-emoji{font-size:4rem;margin-bottom:12px;}
+        .result-score{font-size:3rem;font-weight:900;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .result-detail{font-size:0.95rem;color:var(--text-secondary);margin:12px 0 24px;}
+        .result-bar{height:8px;background:rgba(99,102,241,0.1);border-radius:99px;margin:16px 0;overflow:hidden;}
+        .result-bar-fill{height:100%;background:var(--gradient-primary);border-radius:99px;transition:width 1.5s ease-out;}
+        .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+
+        /* Timer for mock exam */
+        .mock-timer{position:fixed;top:80px;right:20px;z-index:200;background:rgba(30,41,59,0.95);border:2px solid rgba(248,113,113,0.4);border-radius:1rem;padding:12px 20px;font-size:1.8rem;font-weight:900;color:#f87171;font-family:monospace;text-shadow:0 0 10px rgba(248,113,113,0.4);backdrop-filter:blur(10px);display:none;}
+        .mock-timer.active{display:block;}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo" onclick="showHub()" style="cursor:pointer">
+                <div class="logo-icon">📐</div>
+                <div class="logo-text">
+                    <h1>Ôn Ma Trận</h1>
+                    <p>Luyện dạng bài Cuối Kỳ II</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="index.html" class="btn btn-secondary">← Trang Chủ</a>
+                <a href="exams.html" class="btn btn-secondary">🏛️ Phòng Thi</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-animation"><div class="floating-shape shape-1"></div><div class="floating-shape shape-2"></div><div class="floating-shape shape-3"></div></div>
+
+    <!-- HUB -->
+    <div class="matran-hub" id="hubView">
+        <h2 class="section-title">Ma Trận Đề Kiểm Tra Cuối Kỳ II</h2>
+        <p class="section-subtitle" style="margin-bottom:1rem;">Lớp 12 — Thời gian: 50 phút — 40 câu TNKQ — 10 điểm</p>
+
+        <table class="matrix-table">
+            <thead><tr><th>Dạng bài</th><th>Biết</th><th>Hiểu</th><th>Vận dụng</th><th>Tổng câu</th><th>% Điểm</th></tr></thead>
+            <tbody>
+                <tr><td style="text-align:left;font-weight:600;">📝 Cloze Test</td><td>9</td><td>2</td><td>1</td><td>12</td><td>30%</td></tr>
+                <tr><td style="text-align:left;font-weight:600;">🔢 Sequencing</td><td>1</td><td>1</td><td>3</td><td>5</td><td>12.5%</td></tr>
+                <tr><td style="text-align:left;font-weight:600;">📄 Text Completion</td><td>1</td><td>2</td><td>2</td><td>5</td><td>12.5%</td></tr>
+                <tr><td style="text-align:left;font-weight:600;">📖 Reading Comprehension</td><td>7</td><td>7</td><td>4</td><td>18</td><td>45%</td></tr>
+                <tr style="font-weight:800;background:rgba(99,102,241,0.08);"><td style="text-align:left;">TỔNG</td><td>18</td><td>12</td><td>10</td><td>40</td><td>100%</td></tr>
+            </tbody>
+        </table>
+
+        <div class="type-cards" id="typeCards"></div>
+
+        <div class="mock-banner" onclick="startMockExam()">
+            <div class="mock-icon">🏆</div>
+            <div class="mock-info">
+                <h3>THI THỬ — Đề Hoàn Chỉnh 40 Câu</h3>
+                <p>Mô phỏng đề thi thật: 40 câu trắc nghiệm, đồng hồ đếm ngược 50 phút. Trộn ngẫu nhiên từ ngân hàng câu hỏi.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRACTICE ROOM -->
+    <div class="practice-room" id="practiceRoom">
+        <div class="pr-header">
+            <button class="btn btn-ghost" onclick="showHub()">← Quay Lại</button>
+            <div id="prTitle" style="font-weight:700;font-size:1rem;"></div>
+            <div class="pr-progress" id="prProgress">0/0</div>
+        </div>
+        <div class="progress-bar-container"><div class="progress-bar" id="prBar" style="width:0%"></div></div>
+        <div id="prContent"></div>
+        <div style="text-align:center;margin-top:1.5rem;" id="prActions"></div>
+    </div>
+
+    <!-- MOCK TIMER -->
+    <div class="mock-timer" id="mockTimer">50:00</div>
+
+    <!-- RESULT OVERLAY -->
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-box">
+            <div class="result-emoji" id="resEmoji">🎉</div>
+            <h2 id="resTitle" style="font-size:1.5rem;font-weight:800;margin-bottom:4px;">Hoàn thành!</h2>
+            <div class="result-score" id="resScore">0%</div>
+            <div class="result-detail" id="resDetail"></div>
+            <div class="result-bar"><div class="result-bar-fill" id="resBarFill" style="width:0%"></div></div>
+            <div class="result-actions">
+                <button class="btn btn-primary" onclick="retryPractice()">🔄 Làm Lại</button>
+                <button class="btn btn-secondary" onclick="showHub()">📚 Quay Về</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="matran-data.js"></script>
+    <script>
+    // ============================================
+    // STATE
+    // ============================================
+    let mode = null; // 'cloze','seq','tc','rc','mock'
+    let currentItems = [];
+    let currentIdx = 0;
+    let answers = {};
+    let score = 0;
+    let totalQ = 0;
+    let mockTimerInt = null;
+    let mockTimeLeft = 3000;
+    let isMockMode = false;
+    let dragSrcEl = null;
+
+    // ============================================
+    // HUB RENDERING
+    // ============================================
+    function renderHub() {
+        const stats = getMatranStats();
+        const types = [
+            {key:'cloze',emoji:'📝',title:'Cloze Test',desc:'Điền từ vào đoạn văn (leaflet/announcement). 2 ngữ pháp, 1 cụm từ cố định, 3 từ vựng mỗi bài.',count:stats.cloze,pct:'30%',color:'#6366f1'},
+            {key:'seq',emoji:'🔢',title:'Sequencing',desc:'Sắp xếp trật tự hội thoại, thư, đoạn văn. Kéo thả để đặt đúng thứ tự.',count:stats.seq,pct:'12.5%',color:'#f59e0b'},
+            {key:'tc',emoji:'📄',title:'Text Completion',desc:'Hoàn thành đoạn văn 200-250 từ. Chọn từ/cụm từ phù hợp nhất cho mỗi chỗ trống.',count:stats.tc,pct:'12.5%',color:'#10b981'},
+            {key:'rc',emoji:'📖',title:'Reading Comprehension',desc:'Đọc hiểu đoạn văn 250-280 từ. Trả lời câu hỏi chi tiết, TRUE/FALSE, đồng/trái nghĩa.',count:stats.rc,pct:'45%',color:'#ec4899'}
+        ];
+        document.getElementById('typeCards').innerHTML = types.map(t => `
+            <div class="type-card" onclick="startPractice('${t.key}')">
+                <div class="tc-emoji">${t.emoji}</div>
+                <div class="tc-title">${t.title}</div>
+                <div class="tc-desc">${t.desc}</div>
+                <div class="tc-meta">
+                    <span class="tc-badge">${t.count} câu</span>
+                    <span class="tc-pct">${t.pct}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function showHub() {
+        document.getElementById('hubView').style.display = 'block';
+        document.getElementById('practiceRoom').classList.remove('active');
+        document.getElementById('resultOverlay').classList.remove('active');
+        document.getElementById('mockTimer').classList.remove('active');
+        clearInterval(mockTimerInt);
+        isMockMode = false;
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // ============================================
+    // START PRACTICE MODE
+    // ============================================
+    function startPractice(type) {
+        mode = type;
+        isMockMode = false;
+        answers = {};
+        score = 0;
+        currentIdx = 0;
+        document.getElementById('hubView').style.display = 'none';
+        document.getElementById('practiceRoom').classList.add('active');
+        document.getElementById('resultOverlay').classList.remove('active');
+
+        if (type === 'cloze') buildCloze(MATRAN_DATA.clozeTests);
+        else if (type === 'seq') buildSequencing(MATRAN_DATA.sequencing);
+        else if (type === 'tc') buildTextCompletion(MATRAN_DATA.textCompletion);
+        else if (type === 'rc') buildReadingComp(MATRAN_DATA.readingComprehension);
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // ============================================
+    // CLOZE TEST
+    // ============================================
+    function buildCloze(data) {
+        const items = shuffle([...data]);
+        currentItems = items;
+        totalQ = items.reduce((s,b) => s + b.questions.length, 0);
+        let html = '';
+        let gIdx = 0;
+        items.forEach((bai, bi) => {
+            let passageHtml = bai.passage;
+            bai.questions.forEach((q, qi) => {
+                passageHtml = passageHtml.replace(`(${q.id})______`, `<span class="blank" id="blank-${gIdx}" onclick="scrollToQ('pq-${gIdx}')">(${q.id})</span>`);
+                gIdx++;
+            });
+            html += `<div class="pq-card" style="margin-bottom:20px;padding:0;border:none;background:none;">
+                <div style="font-weight:700;color:#a5b4fc;margin-bottom:8px;font-size:0.9rem;">📝 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
+                <div class="passage-box">${passageHtml}</div></div>`;
+        });
+        gIdx = 0;
+        items.forEach(bai => {
+            bai.questions.forEach((q,qi) => {
+                html += buildMCQuestion(gIdx, `Câu ${gIdx+1}: Chọn từ phù hợp cho chỗ trống (${q.id})`, q.options, q.correct, q.explanation);
+                gIdx++;
+            });
+        });
+        document.getElementById('prTitle').textContent = '📝 Cloze Test';
+        document.getElementById('prProgress').textContent = `0/${totalQ}`;
+        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitPractice()">Nộp Bài & Xem Kết Quả 🏆</button>`;
+        document.getElementById('prBar').style.width = '0%';
+    }
+
+    // ============================================
+    // SEQUENCING
+    // ============================================
+    function buildSequencing(data) {
+        const items = shuffle([...data]);
+        currentItems = items;
+        totalQ = items.length;
+        let html = '';
+        items.forEach((sq, si) => {
+            const shuffledItems = shuffle(sq.items.map((it,i) => ({text: it, origIdx: i})));
+            html += `<div class="pq-card" id="seq-card-${si}">
+                <div class="pq-num">${sq.type === 'dialogue'?'💬':sq.type==='letter'?'✉️':'📃'} Bài ${si+1} — ${sq.title}</div>
+                <div class="pq-text">${sq.instruction}</div>
+                <div id="seq-list-${si}" class="seq-list">
+                    ${shuffledItems.map((it,i) => `<div class="seq-item" draggable="true" data-seq="${si}" data-orig="${it.origIdx}"
+                        ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)">
+                        <span class="seq-handle">⠿</span><span class="seq-num">${i+1}</span><span>${it.text}</span>
+                    </div>`).join('')}
+                </div>
+                <div class="pq-explain" id="seq-exp-${si}">${sq.explanation}</div>
+            </div>`;
+        });
+        document.getElementById('prTitle').textContent = '🔢 Sequencing';
+        document.getElementById('prProgress').textContent = `0/${totalQ}`;
+        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitSequencing()">Kiểm Tra Thứ Tự ✓</button>`;
+        document.getElementById('prBar').style.width = '0%';
+    }
+
+    function dragStart(e) { dragSrcEl = e.target.closest('.seq-item'); e.target.closest('.seq-item').classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+    function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+    function dragDrop(e) {
+        e.preventDefault();
+        const target = e.target.closest('.seq-item');
+        if (!target || target === dragSrcEl) return;
+        const list = target.parentElement;
+        const items = [...list.children];
+        const fromIdx = items.indexOf(dragSrcEl);
+        const toIdx = items.indexOf(target);
+        if (fromIdx < toIdx) list.insertBefore(dragSrcEl, target.nextSibling);
+        else list.insertBefore(dragSrcEl, target);
+        updateSeqNumbers(list);
+    }
+    function dragEnd(e) { e.target.closest('.seq-item')?.classList.remove('dragging'); }
+    function updateSeqNumbers(list) { [...list.children].forEach((el,i) => { const n = el.querySelector('.seq-num'); if(n) n.textContent = i+1; }); }
+
+    function submitSequencing() {
+        score = 0;
+        currentItems.forEach((sq, si) => {
+            const list = document.getElementById(`seq-list-${si}`);
+            const items = [...list.children];
+            let allCorrect = true;
+            items.forEach((el, i) => {
+                const origIdx = parseInt(el.dataset.orig);
+                const correctIdx = sq.correctOrder[i];
+                if (origIdx === correctIdx) { el.classList.add('seq-correct'); }
+                else { el.classList.add('seq-wrong'); allCorrect = false; }
+                el.setAttribute('draggable', 'false');
+                el.style.cursor = 'default';
+            });
+            if (allCorrect) score++;
+            document.getElementById(`seq-exp-${si}`).classList.add('show');
+        });
+        showResult(score, totalQ);
+    }
+
+    // ============================================
+    // TEXT COMPLETION
+    // ============================================
+    function buildTextCompletion(data) {
+        const items = shuffle([...data]);
+        currentItems = items;
+        totalQ = items.reduce((s,b) => s + b.questions.length, 0);
+        let html = '';
+        let gIdx = 0;
+        items.forEach((bai, bi) => {
+            let passageHtml = bai.passage;
+            bai.questions.forEach(q => {
+                passageHtml = passageHtml.replace(`(${q.id})______`, `<span class="blank" id="blank-${gIdx}">(${q.id})</span>`);
+                gIdx++;
+            });
+            html += `<div style="margin-bottom:12px;font-weight:700;color:#34d399;font-size:0.9rem;">📄 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
+                <div class="passage-box">${passageHtml}</div>`;
+        });
+        gIdx = 0;
+        items.forEach(bai => {
+            bai.questions.forEach(q => {
+                html += buildMCQuestion(gIdx, `Câu ${gIdx+1}: Chọn từ phù hợp cho chỗ trống (${q.id})`, q.options, q.correct, q.explanation);
+                gIdx++;
+            });
+        });
+        document.getElementById('prTitle').textContent = '📄 Text Completion';
+        document.getElementById('prProgress').textContent = `0/${totalQ}`;
+        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitPractice()">Nộp Bài & Xem Kết Quả 🏆</button>`;
+    }
+
+    // ============================================
+    // READING COMPREHENSION
+    // ============================================
+    function buildReadingComp(data) {
+        const items = shuffle([...data]);
+        currentItems = items;
+        totalQ = items.reduce((s,b) => s + b.questions.length, 0);
+        let html = '';
+        let gIdx = 0;
+        items.forEach((bai, bi) => {
+            html += `<div style="margin-bottom:12px;font-weight:700;color:#f472b6;font-size:0.9rem;">📖 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
+                <div class="passage-box">${bai.passage}</div>`;
+            bai.questions.forEach((q,qi) => {
+                html += buildMCQuestion(gIdx, `Câu ${gIdx+1}: ${q.q}`, q.options, q.correct, q.explanation);
+                gIdx++;
+            });
+        });
+        document.getElementById('prTitle').textContent = '📖 Reading Comprehension';
+        document.getElementById('prProgress').textContent = `0/${totalQ}`;
+        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitPractice()">Nộp Bài & Xem Kết Quả 🏆</button>`;
+    }
+
+    // ============================================
+    // MC QUESTION BUILDER
+    // ============================================
+    function buildMCQuestion(idx, text, options, correct, explanation) {
+        const letters = ['A','B','C','D'];
+        return `<div class="pq-card" id="pq-${idx}">
+            <div class="pq-num">Câu ${idx+1}</div>
+            <div class="pq-text">${text}</div>
+            <div class="pq-options">
+                ${options.map((opt,oi) => `<div class="pq-opt" id="opt-${idx}-${oi}" data-q="${idx}" data-o="${oi}" data-correct="${correct}" onclick="selectOpt(this)">
+                    <span class="pq-opt-letter">${letters[oi]}</span><span>${opt}</span>
+                </div>`).join('')}
+            </div>
+            <div class="pq-explain" id="exp-${idx}">${explanation}</div>
+        </div>`;
+    }
+
+    function selectOpt(el) {
+        if (el.classList.contains('locked')) return;
+        const q = el.dataset.q;
+        const o = parseInt(el.dataset.o);
+        document.querySelectorAll(`[data-q="${q}"]`).forEach(e => e.classList.remove('selected'));
+        el.classList.add('selected');
+        answers[q] = o;
+        // Update progress
+        const answered = Object.keys(answers).length;
+        document.getElementById('prProgress').textContent = `${answered}/${totalQ}`;
+        document.getElementById('prBar').style.width = `${(answered/totalQ)*100}%`;
+        // Update blank
+        const blank = document.getElementById(`blank-${q}`);
+        if (blank) blank.classList.add('answered');
+    }
+
+    function scrollToQ(id) {
+        const el = document.getElementById(id);
+        if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('active-card'); setTimeout(()=>el.classList.remove('active-card'),2000); }
+    }
+
+    // ============================================
+    // SUBMIT & RESULTS
+    // ============================================
+    function submitPractice() {
+        const unanswered = totalQ - Object.keys(answers).length;
+        if (unanswered > 0 && !confirm(`Bạn còn ${unanswered} câu chưa làm. Nộp bài?`)) return;
+
+        score = 0;
+        // Collect all correct answers
+        let allCorrects = [];
+        if (mode === 'cloze') { currentItems.forEach(b => b.questions.forEach(q => allCorrects.push(q.correct))); }
+        else if (mode === 'tc') { currentItems.forEach(b => b.questions.forEach(q => allCorrects.push(q.correct))); }
+        else if (mode === 'rc') { currentItems.forEach(b => b.questions.forEach(q => allCorrects.push(q.correct))); }
+        else if (mode === 'mock') {
+            currentItems.forEach(item => {
+                if (item._type === 'mc') allCorrects.push(item.correct);
+            });
+        }
+
+        allCorrects.forEach((correct, idx) => {
+            const userAns = answers[idx];
+            const correctOpt = document.getElementById(`opt-${idx}-${correct}`);
+            if (correctOpt) correctOpt.classList.add('correct-opt');
+            if (userAns !== undefined) {
+                if (userAns === correct) { score++; document.getElementById(`pq-${idx}`)?.classList.add('correct-card'); }
+                else { document.getElementById(`opt-${idx}-${userAns}`)?.classList.add('wrong-opt'); document.getElementById(`pq-${idx}`)?.classList.add('wrong-card'); }
+            } else { document.getElementById(`pq-${idx}`)?.classList.add('wrong-card'); }
+            document.querySelectorAll(`[data-q="${idx}"]`).forEach(e => e.classList.add('locked'));
+            const exp = document.getElementById(`exp-${idx}`);
+            if (exp) exp.classList.add('show');
+            const blank = document.getElementById(`blank-${idx}`);
+            if (blank) { if (userAns === correct) blank.classList.add('answered'); else blank.classList.add('wrong-answer'); }
+        });
+
+        if (isMockMode) { clearInterval(mockTimerInt); document.getElementById('mockTimer').classList.remove('active'); }
+        showResult(score, allCorrects.length);
+        document.getElementById('prActions').innerHTML = `<button class="btn btn-secondary btn-xl" onclick="showHub()">📚 Quay Về Ma Trận</button>`;
+    }
+
+    function showResult(correct, total) {
+        const pct = total > 0 ? Math.round((correct/total)*100) : 0;
+        const point10 = ((correct/total)*10).toFixed(1);
+        let emoji, title;
+        if (pct >= 90) { emoji='🏆'; title='Xuất Sắc!'; }
+        else if (pct >= 70) { emoji='🎉'; title='Tốt Lắm!'; }
+        else if (pct >= 50) { emoji='💪'; title='Khá Ổn!'; }
+        else { emoji='📖'; title='Cần Ôn Thêm!'; }
+
+        document.getElementById('resEmoji').textContent = emoji;
+        document.getElementById('resTitle').textContent = title;
+        document.getElementById('resScore').textContent = `${point10}/10`;
+        document.getElementById('resDetail').innerHTML = `Đúng <b>${correct}</b>/${total} câu (${pct}%)`;
+        document.getElementById('resultOverlay').classList.add('active');
+        setTimeout(() => { document.getElementById('resBarFill').style.width = pct+'%'; }, 100);
+    }
+
+    function retryPractice() {
+        document.getElementById('resultOverlay').classList.remove('active');
+        if (isMockMode) startMockExam();
+        else if (mode) startPractice(mode);
+    }
+
+    // ============================================
+    // MOCK EXAM — 40 câu, 50 phút
+    // ============================================
+    function startMockExam() {
+        mode = 'mock';
+        isMockMode = true;
+        answers = {};
+        score = 0;
+        currentIdx = 0;
+
+        // Build 40 questions: 12 cloze + 5 seq(as MC) + 5 tc + 18 rc
+        let mockQuestions = [];
+
+        // Cloze → pick 2 random passages (12 questions)
+        const clozePool = shuffle([...MATRAN_DATA.clozeTests]).slice(0,2);
+        clozePool.forEach(bai => {
+            bai.questions.forEach(q => {
+                mockQuestions.push({ _type:'mc', _section:'Cloze Test', q:`[Cloze — ${bai.title}] Chỗ trống (${q.id}): "${getPassageContext(bai.passage, q.id)}"`, options:q.options, correct:q.correct, explanation:q.explanation });
+            });
+        });
+
+        // Sequencing → convert 5 to MC format
+        const seqPool = shuffle([...MATRAN_DATA.sequencing]).slice(0,5);
+        seqPool.forEach(sq => {
+            const correctText = sq.correctOrder.map(i => sq.items[i]).join(' → ');
+            const wrongOrders = generateWrongOrders(sq.correctOrder, sq.items);
+            const allOptions = shuffle([correctText, ...wrongOrders]);
+            const correctIdx = allOptions.indexOf(correctText);
+            mockQuestions.push({ _type:'mc', _section:'Sequencing', q:`[Sequencing] ${sq.instruction}<br><br>Các mục:<br>${sq.items.join('<br>')}`, options:allOptions, correct:correctIdx, explanation:sq.explanation });
+        });
+
+        // Text Completion → pick 1 passage (5 questions)
+        const tcPool = shuffle([...MATRAN_DATA.textCompletion]).slice(0,1);
+        tcPool.forEach(bai => {
+            bai.questions.forEach(q => {
+                mockQuestions.push({ _type:'mc', _section:'Text Completion', q:`[Text Completion — ${bai.title}] Chỗ trống (${q.id})`, options:q.options, correct:q.correct, explanation:q.explanation });
+            });
+        });
+
+        // Reading → pick 2 passages (enough for ~18 questions)
+        const rcPool = shuffle([...MATRAN_DATA.readingComprehension]).slice(0,2);
+        rcPool.forEach(bai => {
+            bai.questions.forEach(q => {
+                mockQuestions.push({ _type:'mc', _section:'Reading', q:`[Reading — ${bai.title}] ${q.q}`, options:q.options, correct:q.correct, explanation:q.explanation, passage:bai.passage });
+            });
+        });
+
+        mockQuestions = mockQuestions.slice(0,40);
+        currentItems = mockQuestions;
+        totalQ = mockQuestions.length;
+
+        // Build UI
+        document.getElementById('hubView').style.display = 'none';
+        document.getElementById('practiceRoom').classList.add('active');
+        document.getElementById('resultOverlay').classList.remove('active');
+
+        let html = '<div style="text-align:center;margin-bottom:1.5rem;"><h2 style="color:#f87171;font-weight:800;">🏆 ĐỀ THI THỬ — 40 CÂU</h2><p style="color:var(--text-secondary);">Thời gian: 50 phút</p></div>';
+        mockQuestions.forEach((q,i) => {
+            html += buildMCQuestion(i, q.q, q.options, q.correct, q.explanation);
+        });
+
+        document.getElementById('prTitle').textContent = '🏆 Thi Thử Ma Trận';
+        document.getElementById('prProgress').textContent = `0/${totalQ}`;
+        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitPractice()">Nộp Bài 🏆</button>`;
+        document.getElementById('prBar').style.width = '0%';
+
+        // Start timer
+        mockTimeLeft = 50 * 60;
+        const timerEl = document.getElementById('mockTimer');
+        timerEl.classList.add('active');
+        updateMockTimer();
+        clearInterval(mockTimerInt);
+        mockTimerInt = setInterval(() => {
+            mockTimeLeft--;
+            updateMockTimer();
+            if (mockTimeLeft <= 0) { clearInterval(mockTimerInt); alert('Hết giờ!'); submitPractice(); }
+        }, 1000);
+
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function updateMockTimer() {
+        const m = Math.floor(mockTimeLeft/60);
+        const s = mockTimeLeft % 60;
+        const el = document.getElementById('mockTimer');
+        el.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        if (mockTimeLeft < 300) el.style.color = '#ef4444';
+        else el.style.color = '#f87171';
+    }
+
+    function getPassageContext(passage, id) {
+        const clean = passage.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ');
+        const marker = `(${id})______`;
+        const idx = clean.indexOf(marker);
+        if (idx < 0) return '...';
+        const start = Math.max(0, idx - 40);
+        const end = Math.min(clean.length, idx + marker.length + 40);
+        return '...' + clean.substring(start, end).replace(marker,'______') + '...';
+    }
+
+    function generateWrongOrders(correctOrder, items) {
+        const wrongs = [];
+        for (let i = 0; i < 3; i++) {
+            let wrong;
+            do { wrong = shuffle([...correctOrder]); } while (wrong.join() === correctOrder.join() || wrongs.some(w => w.join() === wrong.join()));
+            wrongs.push(wrong);
+        }
+        return wrongs.map(order => order.map(idx => items[idx]).join(' → '));
+    }
+
+    // ============================================
+    // HELPERS
+    // ============================================
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // INIT
+    document.addEventListener('DOMContentLoaded', () => { renderHub(); });
+    </script>
+</body>
+</html>
