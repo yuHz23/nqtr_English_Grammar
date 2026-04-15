@@ -32,16 +32,28 @@
         .tc-pct{font-size:1.4rem;font-weight:900;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
         /* Practice Room */
-        .practice-room{display:none;max-width:900px;margin:0 auto;padding:1.5rem;position:relative;z-index:2;}
+        .practice-room{display:none;max-width:1400px;margin:0 auto;padding:1.5rem;position:relative;z-index:2;}
         .practice-room.active{display:block;}
         .pr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px;}
         .pr-progress{font-size:0.85rem;font-weight:600;color:#818cf8;background:var(--bg-card);border:1px solid var(--border-color);padding:5px 14px;border-radius:99px;}
 
+        /* Split Layout for side-by-side */
+        .split-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;}
+        .split-left{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:8px;scrollbar-width:thin;scrollbar-color:rgba(99,102,241,0.3) transparent;}
+        .split-left::-webkit-scrollbar{width:5px;}
+        .split-left::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.3);border-radius:99px;}
+        .split-right{max-height:calc(100vh - 100px);overflow-y:auto;padding-right:8px;scrollbar-width:thin;scrollbar-color:rgba(99,102,241,0.3) transparent;}
+        .split-right::-webkit-scrollbar{width:5px;}
+        .split-right::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.3);border-radius:99px;}
+        @media(max-width:900px){.split-layout{grid-template-columns:1fr;}.split-left{position:static;max-height:none;}}
+
         /* Passage Box */
         .passage-box{background:rgba(0,0,0,0.25);padding:1.5rem;border-left:4px solid #6366f1;border-radius:0 0.75rem 0.75rem 0;margin-bottom:1.5rem;font-size:0.95rem;line-height:1.8;color:#e2e8f0;text-align:justify;}
-        .passage-box .blank{display:inline-block;min-width:80px;border-bottom:2px dashed #818cf8;text-align:center;color:#818cf8;font-weight:700;cursor:pointer;padding:0 4px;transition:all 0.2s;}
+        .passage-box .blank{display:inline-block;min-width:80px;border-bottom:2px dashed #818cf8;text-align:center;color:#818cf8;font-weight:700;cursor:pointer;padding:2px 6px;transition:all 0.3s;border-radius:3px;}
         .passage-box .blank.answered{border-color:#10b981;color:#10b981;}
         .passage-box .blank.wrong-answer{border-color:#ef4444;color:#ef4444;}
+        .passage-box .blank.highlight{background:rgba(99,102,241,0.25);border-color:#a5b4fc;color:#e0e7ff;box-shadow:0 0 12px rgba(99,102,241,0.4);animation:pulse-glow 1.5s ease-in-out infinite;}
+        @keyframes pulse-glow{0%,100%{box-shadow:0 0 8px rgba(99,102,241,0.3);}50%{box-shadow:0 0 18px rgba(99,102,241,0.6);}}
 
         /* Question inside practice */
         .pq-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;transition:all 0.3s;animation:slideUp 0.3s ease;}
@@ -144,7 +156,7 @@
     <!-- PRACTICE ROOM -->
     <div class="practice-room" id="practiceRoom">
         <div class="pr-header">
-            <button class="btn btn-ghost" onclick="showHub()">← Quay Lại</button>
+            <button class="btn btn-ghost" onclick="goHome()">← Thoát</button>
             <div id="prTitle" style="font-weight:700;font-size:1rem;"></div>
             <div class="pr-progress" id="prProgress">0/0</div>
         </div>
@@ -166,7 +178,7 @@
             <div class="result-bar"><div class="result-bar-fill" id="resBarFill" style="width:0%"></div></div>
             <div class="result-actions">
                 <button class="btn btn-primary" onclick="retryPractice()">🔄 Làm Lại</button>
-                <button class="btn btn-secondary" onclick="showHub()">📚 Quay Về</button>
+                <button class="btn btn-secondary" onclick="goHome()">🏠 Về Trang Chủ</button>
             </div>
         </div>
     </div>
@@ -221,6 +233,11 @@
         window.scrollTo({top:0,behavior:'smooth'});
     }
 
+    function goHome() {
+        clearInterval(mockTimerInt);
+        window.location.href = 'index.html#openAuth';
+    }
+
     // ============================================
     // START PRACTICE MODE
     // ============================================
@@ -248,7 +265,7 @@
         const items = shuffle([...data]);
         currentItems = items;
         totalQ = items.reduce((s,b) => s + b.questions.length, 0);
-        let html = '';
+        let leftHtml = '', rightHtml = '';
         let gIdx = 0;
         items.forEach((bai, bi) => {
             let passageHtml = bai.passage;
@@ -256,20 +273,20 @@
                 passageHtml = passageHtml.replace(`(${q.id})______`, `<span class="blank" id="blank-${gIdx}" onclick="scrollToQ('pq-${gIdx}')">(${q.id})</span>`);
                 gIdx++;
             });
-            html += `<div class="pq-card" style="margin-bottom:20px;padding:0;border:none;background:none;">
+            leftHtml += `<div style="margin-bottom:20px;">
                 <div style="font-weight:700;color:#a5b4fc;margin-bottom:8px;font-size:0.9rem;">📝 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
                 <div class="passage-box">${passageHtml}</div></div>`;
         });
         gIdx = 0;
         items.forEach(bai => {
             bai.questions.forEach((q,qi) => {
-                html += buildMCQuestion(gIdx, `Câu ${gIdx+1}: Chọn từ phù hợp cho chỗ trống (${q.id})`, q.options, q.correct, q.explanation);
+                rightHtml += buildMCQuestion(gIdx, `Câu ${gIdx+1}: Chọn từ phù hợp cho chỗ trống (${q.id})`, q.options, q.correct, q.explanation);
                 gIdx++;
             });
         });
         document.getElementById('prTitle').textContent = '📝 Cloze Test';
         document.getElementById('prProgress').textContent = `0/${totalQ}`;
-        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prContent').innerHTML = `<div class="split-layout"><div class="split-left">${leftHtml}</div><div class="split-right">${rightHtml}</div></div>`;
         document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitPractice()">Nộp Bài & Xem Kết Quả 🏆</button>`;
         document.getElementById('prBar').style.width = '0%';
     }
@@ -347,7 +364,7 @@
         const items = shuffle([...data]);
         currentItems = items;
         totalQ = items.reduce((s,b) => s + b.questions.length, 0);
-        let html = '';
+        let leftHtml = '', rightHtml = '';
         let gIdx = 0;
         items.forEach((bai, bi) => {
             let passageHtml = bai.passage;
@@ -355,19 +372,19 @@
                 passageHtml = passageHtml.replace(`(${q.id})______`, `<span class="blank" id="blank-${gIdx}">(${q.id})</span>`);
                 gIdx++;
             });
-            html += `<div style="margin-bottom:12px;font-weight:700;color:#34d399;font-size:0.9rem;">📄 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
-                <div class="passage-box">${passageHtml}</div>`;
+            leftHtml += `<div style="margin-bottom:16px;"><div style="margin-bottom:8px;font-weight:700;color:#34d399;font-size:0.9rem;">📄 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
+                <div class="passage-box">${passageHtml}</div></div>`;
         });
         gIdx = 0;
         items.forEach(bai => {
             bai.questions.forEach(q => {
-                html += buildMCQuestion(gIdx, `Câu ${gIdx+1}: Chọn từ phù hợp cho chỗ trống (${q.id})`, q.options, q.correct, q.explanation);
+                rightHtml += buildMCQuestion(gIdx, `Câu ${gIdx+1}: Chọn từ phù hợp cho chỗ trống (${q.id})`, q.options, q.correct, q.explanation);
                 gIdx++;
             });
         });
         document.getElementById('prTitle').textContent = '📄 Text Completion';
         document.getElementById('prProgress').textContent = `0/${totalQ}`;
-        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prContent').innerHTML = `<div class="split-layout"><div class="split-left">${leftHtml}</div><div class="split-right">${rightHtml}</div></div>`;
         document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitPractice()">Nộp Bài & Xem Kết Quả 🏆</button>`;
     }
 
@@ -378,19 +395,19 @@
         const items = shuffle([...data]);
         currentItems = items;
         totalQ = items.reduce((s,b) => s + b.questions.length, 0);
-        let html = '';
+        let leftHtml = '', rightHtml = '';
         let gIdx = 0;
         items.forEach((bai, bi) => {
-            html += `<div style="margin-bottom:12px;font-weight:700;color:#f472b6;font-size:0.9rem;">📖 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
-                <div class="passage-box">${bai.passage}</div>`;
+            leftHtml += `<div style="margin-bottom:16px;" id="rc-passage-${bi}"><div style="margin-bottom:8px;font-weight:700;color:#f472b6;font-size:0.9rem;">📖 ${bai.title} <span style="color:#6b7280;font-weight:400;">(${bai.topic})</span></div>
+                <div class="passage-box">${bai.passage}</div></div>`;
             bai.questions.forEach((q,qi) => {
-                html += buildMCQuestion(gIdx, `Câu ${gIdx+1}: ${q.q}`, q.options, q.correct, q.explanation);
+                rightHtml += buildMCQuestion(gIdx, `Câu ${gIdx+1}: ${q.q}`, q.options, q.correct, q.explanation);
                 gIdx++;
             });
         });
         document.getElementById('prTitle').textContent = '📖 Reading Comprehension';
         document.getElementById('prProgress').textContent = `0/${totalQ}`;
-        document.getElementById('prContent').innerHTML = html;
+        document.getElementById('prContent').innerHTML = `<div class="split-layout"><div class="split-left">${leftHtml}</div><div class="split-right">${rightHtml}</div></div>`;
         document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="submitPractice()">Nộp Bài & Xem Kết Quả 🏆</button>`;
     }
 
@@ -422,14 +439,21 @@
         const answered = Object.keys(answers).length;
         document.getElementById('prProgress').textContent = `${answered}/${totalQ}`;
         document.getElementById('prBar').style.width = `${(answered/totalQ)*100}%`;
-        // Update blank
+        // Update blank + highlight
+        document.querySelectorAll('.passage-box .blank.highlight').forEach(b => b.classList.remove('highlight'));
         const blank = document.getElementById(`blank-${q}`);
-        if (blank) blank.classList.add('answered');
+        if (blank) { blank.classList.add('answered'); blank.classList.add('highlight'); blank.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>blank.classList.remove('highlight'),3000); }
     }
 
     function scrollToQ(id) {
         const el = document.getElementById(id);
-        if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('active-card'); setTimeout(()=>el.classList.remove('active-card'),2000); }
+        if (el) {
+            // Scroll question in right panel
+            const rightPanel = el.closest('.split-right');
+            if (rightPanel) { rightPanel.scrollTop = el.offsetTop - rightPanel.offsetTop - 20; }
+            else { el.scrollIntoView({behavior:'smooth',block:'center'}); }
+            el.classList.add('active-card'); setTimeout(()=>el.classList.remove('active-card'),2000);
+        }
     }
 
     // ============================================
@@ -468,7 +492,7 @@
 
         if (isMockMode) { clearInterval(mockTimerInt); document.getElementById('mockTimer').classList.remove('active'); }
         showResult(score, allCorrects.length);
-        document.getElementById('prActions').innerHTML = `<button class="btn btn-secondary btn-xl" onclick="showHub()">📚 Quay Về Ma Trận</button>`;
+        document.getElementById('prActions').innerHTML = `<button class="btn btn-primary btn-xl" onclick="retryPractice()">🔄 Làm Lại</button> <button class="btn btn-secondary btn-xl" onclick="goHome()">🏠 Về Trang Chủ</button>`;
     }
 
     function showResult(correct, total) {

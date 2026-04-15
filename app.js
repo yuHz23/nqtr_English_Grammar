@@ -788,4 +788,9 @@ spawnConfetti = function() {
 document.addEventListener("DOMContentLoaded", () => {
     const u = localStorage.getItem('gm_currentUser');
     if(!u) { setTimeout(openAuth, 1500); } // Nhắc login sau 1.5s
+    // Auto-open auth from matran page redirect
+    if (window.location.hash === '#openAuth') {
+        setTimeout(openAuth, 500);
+        history.replaceState(null, '', window.location.pathname); // clean hash
+    }
 });
